@@ -1,367 +1,52 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mundial entre amigos 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --verde: #00c06b; --verde-dark: #009952; --rojo: #e63329; --dorado: #f5c518;
-    --negro: #0d0d0d; --gris-oscuro: #1a1a1a; --gris-medio: #2a2a2a;
-    --gris-borde: #333; --texto: #f0f0f0; --texto-muted: #888; --card-bg: #161616;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--negro); color: var(--texto); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+// ─────────────────────────────────────────────────────────────────────────────
+// INSTRUCCIÓN: Reemplaza el bloque <script> completo de tu index.html
+// con este contenido. El resto del HTML no cambia.
+// Cambia YOUR_PROJECT_ID por tu ID real: mundial-2026-amigos
+// ─────────────────────────────────────────────────────────────────────────────
 
-  header { background: var(--gris-oscuro); border-bottom: 2px solid var(--verde); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
-  .logo span { color: var(--verde); }
-  .user-badge { display: none; align-items: center; gap: 10px; font-size: 13px; color: var(--texto-muted); }
-  .user-badge.visible { display: flex; }
-  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--verde); color: var(--negro); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
-
-  .tabs { display: flex; border-bottom: 1px solid var(--gris-borde); background: var(--gris-oscuro); padding: 0 24px; overflow-x: auto; }
-  .tab { padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--texto-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
-  .tab:hover { color: var(--texto); }
-  .tab.active { color: var(--verde); border-bottom-color: var(--verde); }
-
-  main { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
-  .seccion { display: none; }
-  .seccion.visible { display: block; }
-
-  /* FORMS */
-  .registro-hero { text-align: center; padding: 40px 24px 32px; }
-  .trofeo { font-size: 64px; margin-bottom: 16px; display: block; }
-  .registro-hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 3px; line-height: 1; margin-bottom: 8px; }
-  .registro-hero h1 em { color: var(--verde); font-style: normal; }
-  .registro-hero p { color: var(--texto-muted); font-size: 15px; margin-bottom: 24px; }
-  .precio-badge { display: inline-block; background: var(--dorado); color: var(--negro); font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 8px 24px; border-radius: 6px; margin-bottom: 32px; }
-
-  .form-tabs { display: flex; max-width: 440px; margin: 0 auto 24px; background: var(--gris-medio); border-radius: 10px; padding: 4px; gap: 4px; }
-  .form-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; color: var(--texto-muted); cursor: pointer; border-radius: 7px; transition: all 0.2s; }
-  .form-tab.active { background: var(--card-bg); color: var(--texto); }
-
-  .form-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 28px; max-width: 440px; margin: 0 auto; }
-  .form-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-  .campo { margin-bottom: 16px; }
-  .campo label { display: block; font-size: 12px; color: var(--texto-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .campo input, .campo select {
-    width: 100%; background: var(--gris-medio); border: 1px solid var(--gris-borde);
-    border-radius: 8px; padding: 11px 14px; color: var(--texto);
-    font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s;
-    appearance: none; -webkit-appearance: none;
-  }
-  .campo select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
-  .campo select option { background: var(--gris-oscuro); }
-  .campo input:focus, .campo select:focus { border-color: var(--verde); }
-  .campo-hint { font-size: 12px; color: var(--texto-muted); margin-top: 6px; line-height: 1.5; }
-  .campo-hint strong { color: var(--rojo); }
-
-  .btn-primary { width: 100%; background: var(--verde); color: var(--negro); border: none; border-radius: 8px; padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 4px; }
-  .btn-primary:hover { background: var(--verde-dark); }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:disabled { background: #444; color: #777; cursor: not-allowed; }
-
-  .btn-link { background: none; border: none; color: var(--texto-muted); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; text-decoration: underline; margin-top: 14px; display: block; text-align: center; width: 100%; }
-  .btn-link:hover { color: var(--verde); }
-
-  .pago-info { max-width: 440px; margin: 20px auto 0; background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 20px; }
-  .pago-info h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-muted); margin-bottom: 14px; }
-  .pago-metodo { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gris-borde); font-size: 14px; }
-  .pago-metodo:last-child { border-bottom: none; padding-bottom: 0; }
-  .pago-icon { font-size: 20px; min-width: 28px; }
-  .pago-metodo p { color: var(--texto-muted); font-size: 12px; margin-top: 2px; }
-  .pago-contacto { max-width: 440px; margin: 12px auto 0; text-align: center; font-size: 13px; color: var(--texto-muted); }
-  .pago-contacto a { color: var(--verde); text-decoration: none; }
-
-  /* RECUPERAR PASSWORD */
-  .recuperar-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 28px; max-width: 440px; margin: 0 auto; display: none; }
-  .recuperar-card.visible { display: block; }
-
-  /* BANNER CAMPEÓN */
-  .mi-campeon-banner { background: rgba(0,192,107,0.07); border: 1px solid rgba(0,192,107,0.25); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .mi-campeon-banner .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-muted); margin-bottom: 2px; }
-  .mi-campeon-banner .valor { font-weight: 600; font-size: 15px; color: var(--verde); }
-
-  /* PREMIOS */
-  .premios-intro { text-align: center; margin-bottom: 24px; }
-  .premios-intro h2 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; margin-bottom: 8px; }
-  .premios-intro p { color: var(--texto-muted); font-size: 14px; }
-  .slider-wrap { margin-bottom: 28px; }
-  .slider-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--texto-muted); margin-bottom: 8px; }
-  .slider-label strong { color: var(--texto); font-size: 15px; }
-  input[type=range] { width: 100%; accent-color: var(--verde); }
-  .premios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-  .premio-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 20px 16px; text-align: center; }
-  .premio-card.gold { border-color: var(--dorado); }
-  .premio-card.silver { border-color: #aaa; }
-  .premio-card.bronze { border-color: #cd7f32; }
-  .premio-lugar { font-size: 28px; margin-bottom: 6px; }
-  .premio-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-muted); margin-bottom: 10px; }
-  .premio-monto { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--verde); letter-spacing: 1px; }
-  .premio-card.gold .premio-monto { color: var(--dorado); }
-  .acumulado-resumen { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .acumulado-resumen span { color: var(--texto-muted); font-size: 14px; }
-  .acumulado-total { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--texto); }
-
-  /* PARTIDOS */
-  .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .filtro-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--gris-borde); background: transparent; color: var(--texto-muted); font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
-  .filtro-btn:hover { border-color: var(--verde); color: var(--verde); }
-  .filtro-btn.active { background: var(--verde); color: var(--negro); border-color: var(--verde); font-weight: 600; }
-  .partido-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 20px; margin-bottom: 12px; transition: border-color 0.2s; }
-  .partido-card:hover { border-color: #444; }
-  .partido-card.pronosticado { border-left: 3px solid var(--verde); }
-  .partido-card.cerrado { opacity: 0.5; pointer-events: none; }
-  .partido-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .partido-fase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-muted); background: var(--gris-medio); padding: 3px 8px; border-radius: 4px; }
-  .partido-cierre { font-size: 11px; color: var(--texto-muted); }
-  .partido-cierre.urgente { color: var(--rojo); }
-  .partido-equipos { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .equipo-nombre { font-weight: 600; font-size: 15px; }
-  .equipo-local { text-align: right; }
-  .vs-badge { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--texto-muted); }
-  .marcador-inputs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
-  .goles-input { text-align: center; background: var(--gris-medio); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 10px; color: var(--texto); font-family: 'Bebas Neue', sans-serif; font-size: 28px; width: 100%; outline: none; transition: border-color 0.2s; -moz-appearance: textfield; }
-  .goles-input::-webkit-outer-spin-button, .goles-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .goles-input:focus { border-color: var(--verde); }
-  .guion { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--texto-muted); text-align: center; }
-  .btn-guardar { width: 100%; margin-top: 14px; background: transparent; border: 1px solid var(--verde); color: var(--verde); border-radius: 8px; padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .btn-guardar:hover { background: var(--verde); color: var(--negro); }
-  .btn-guardar.guardado { background: var(--verde); color: var(--negro); }
-
-  /* POSICIONES */
-  .posiciones-tabla { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; overflow: hidden; }
-  .pos-header { display: grid; grid-template-columns: 48px 1fr 130px 70px 70px 80px; padding: 12px 16px; background: var(--gris-medio); font-size: 11px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  .pos-row { display: grid; grid-template-columns: 48px 1fr 130px 70px 70px 80px; padding: 14px 16px; border-top: 1px solid var(--gris-borde); align-items: center; transition: background 0.15s; }
-  .pos-row:hover { background: var(--gris-medio); }
-  .pos-row.top1 { background: rgba(245,197,24,0.08); }
-  .pos-row.top2 { background: rgba(192,192,192,0.05); }
-  .pos-row.top3 { background: rgba(205,127,50,0.05); }
-  .pos-lugar { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--texto-muted); }
-  .pos-lugar.gold { color: var(--dorado); }
-  .pos-lugar.silver { color: #aaa; }
-  .pos-lugar.bronze { color: #cd7f32; }
-  .pos-nombre { font-weight: 500; font-size: 14px; }
-  .pos-campeon { font-size: 12px; color: var(--texto-muted); }
-  .pos-num { text-align: center; font-size: 14px; color: var(--texto-muted); }
-  .pos-total { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--verde); }
-
-  /* REGLAS */
-  .reglas-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 28px; margin-bottom: 16px; }
-  .reglas-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--verde); margin-bottom: 16px; }
-  .reglas-card p { font-size: 14px; color: var(--texto-muted); line-height: 1.7; margin-bottom: 10px; }
-  .reglas-card p:last-child { margin-bottom: 0; }
-  .regla-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gris-borde); font-size: 14px; }
-  .regla-item:last-child { border-bottom: none; }
-  .regla-pts { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--dorado); min-width: 60px; text-align: right; }
-  .regla-item span:first-child { color: var(--texto-muted); padding-right: 12px; }
-  .aviso { background: rgba(230,51,41,0.08); border: 1px solid rgba(230,51,41,0.3); border-radius: 8px; padding: 14px 16px; font-size: 13px; color: var(--texto-muted); line-height: 1.7; margin-top: 8px; }
-
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--gris-oscuro); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 12px 20px; font-size: 14px; transition: transform 0.3s; z-index: 999; white-space: nowrap; }
-  .toast.visible { transform: translateX(-50%) translateY(0); }
-  .toast.ok { border-color: var(--verde); color: var(--verde); }
-  .toast.err { border-color: var(--rojo); color: var(--rojo); }
-  .loading { text-align: center; padding: 60px 0; color: var(--texto-muted); font-size: 14px; }
-  .spinner { width: 28px; height: 28px; border: 2px solid var(--gris-borde); border-top-color: var(--verde); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--texto-muted); font-size: 14px; }
-
-  @media (max-width: 540px) {
-    .premios-grid { grid-template-columns: 1fr; }
-    .pos-header, .pos-row { grid-template-columns: 40px 1fr 80px; }
-    .pos-header span:nth-child(3), .pos-header span:nth-child(4), .pos-header span:nth-child(5),
-    .pos-row div:nth-child(3), .pos-row div:nth-child(4), .pos-row div:nth-child(5) { display: none; }
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="logo">Mundial <span>entre amigos</span> 2026</div>
-  <div class="user-badge" id="userBadge">
-    <div class="user-avatar" id="userAvatar"></div>
-    <span id="userName"></span>
-  </div>
-</header>
-
-<div class="tabs">
-  <div class="tab active" data-tab="registro">Inicio</div>
-  <div class="tab" data-tab="premios">Premios</div>
-  <div class="tab" data-tab="partidos">Pronósticos</div>
-  <div class="tab" data-tab="posiciones">Posiciones</div>
-  <div class="tab" data-tab="reglas">Reglas</div>
-</div>
-
-<main>
-
-  <!-- INICIO -->
-  <div class="seccion visible" id="sec-registro">
-    <div class="registro-hero">
-      <span class="trofeo">🏆</span>
-      <h1>Mundial<br><em>entre amigos</em></h1>
-      <p>Pronostica los 104 partidos del Mundial 2026 y compite por los premios.</p>
-      <div class="precio-badge">Inscripción: $400 MXN</div>
-    </div>
-
-    <!-- TABS REGISTRO / LOGIN -->
-    <div class="form-tabs">
-      <div class="form-tab active" id="ftab-registro" onclick="mostrarFormTab('registro')">Soy nuevo</div>
-      <div class="form-tab" id="ftab-login" onclick="mostrarFormTab('login')">Ya tengo cuenta</div>
-    </div>
-
-    <!-- FORMULARIO REGISTRO -->
-    <div class="form-card" id="form-registro">
-      <h2>Crear cuenta</h2>
-      <div class="campo"><label>Nombre completo</label><input type="text" id="regNombre" placeholder="Tu nombre" autocomplete="name"></div>
-      <div class="campo"><label>Correo electrónico</label><input type="email" id="regEmail" placeholder="tu@correo.com" autocomplete="email"></div>
-      <div class="campo"><label>WhatsApp (opcional)</label><input type="tel" id="regTel" placeholder="55 1234 5678"></div>
-      <div class="campo">
-        <label>Password</label>
-        <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-        <p class="campo-hint">Guárdalo bien — lo necesitarás cada vez que entres.</p>
-      </div>
-      <div class="campo">
-        <label>🏆 ¿Quién será el campeón del mundo?</label>
-        <select id="regCampeon">
-          <option value="">— Elige una selección —</option>
-          <optgroup label="Grupo A"><option>México</option><option>Sudáfrica</option><option>Corea del Sur</option><option>Chequia</option></optgroup>
-          <optgroup label="Grupo B"><option>Canadá</option><option>Bosnia &amp; Herzegovina</option><option>Catar</option><option>Suiza</option></optgroup>
-          <optgroup label="Grupo C"><option>Brasil</option><option>Marruecos</option><option>Haití</option><option>Escocia</option></optgroup>
-          <optgroup label="Grupo D"><option>Estados Unidos</option><option>Paraguay</option><option>Australia</option><option>Turquía</option></optgroup>
-          <optgroup label="Grupo E"><option>Alemania</option><option>Curazao</option><option>Costa de Marfil</option><option>Ecuador</option></optgroup>
-          <optgroup label="Grupo F"><option>Países Bajos</option><option>Japón</option><option>Suecia</option><option>Túnez</option></optgroup>
-          <optgroup label="Grupo G"><option>Bélgica</option><option>Egipto</option><option>Irán</option><option>Nueva Zelanda</option></optgroup>
-          <optgroup label="Grupo H"><option>España</option><option>Cabo Verde</option><option>Arabia Saudita</option><option>Uruguay</option></optgroup>
-          <optgroup label="Grupo I"><option>Francia</option><option>Senegal</option><option>Irak</option><option>Noruega</option></optgroup>
-          <optgroup label="Grupo J"><option>Argentina</option><option>Argelia</option><option>Austria</option><option>Jordania</option></optgroup>
-          <optgroup label="Grupo K"><option>Portugal</option><option>RD Congo</option><option>Uzbekistán</option><option>Colombia</option></optgroup>
-          <optgroup label="Grupo L"><option>Inglaterra</option><option>Croacia</option><option>Ghana</option><option>Panamá</option></optgroup>
-        </select>
-        <p class="campo-hint"><strong>Atención:</strong> esta elección queda bloqueada al registrarte y no puede modificarse.</p>
-      </div>
-      <button class="btn-primary" id="btnRegistrar">Crear cuenta →</button>
-    </div>
-
-    <!-- FORMULARIO LOGIN -->
-    <div class="form-card" id="form-login" style="display:none;">
-      <h2>Iniciar sesión</h2>
-      <div class="campo"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com" autocomplete="email"></div>
-      <div class="campo"><label>Password</label><input type="password" id="loginPassword" placeholder="Tu password" autocomplete="current-password"></div>
-      <button class="btn-primary" id="btnLogin">Entrar →</button>
-      <button class="btn-link" onclick="mostrarRecuperar()">Olvidé mi password</button>
-    </div>
-
-    <!-- RECUPERAR PASSWORD -->
-    <div class="recuperar-card" id="form-recuperar">
-      <h2>Recuperar password</h2>
-      <p style="font-size:14px;color:var(--texto-muted);margin-bottom:20px;">Ingresa tu correo registrado y te enviaremos tu password.</p>
-      <div class="campo"><label>Correo electrónico</label><input type="email" id="recuperarEmail" placeholder="tu@correo.com"></div>
-      <button class="btn-primary" id="btnRecuperar">Enviar password →</button>
-      <button class="btn-link" onclick="ocultarRecuperar()">← Regresar al inicio de sesión</button>
-    </div>
-
-    <div class="pago-info">
-      <h3>Cómo realizar tu pago</h3>
-      <div class="pago-metodo">
-        <div class="pago-icon">💵</div>
-        <div><strong>Efectivo</strong><p>Entrega directa al organizador.</p></div>
-      </div>
-      <div class="pago-metodo">
-        <div class="pago-icon">🏧</div>
-        <div><strong>Retiro sin tarjeta</strong><p>Genera una clave desde tu app bancaria por $400 MXN exactos y envíala al correo del organizador.</p></div>
-      </div>
-    </div>
-    <div class="pago-contacto">Envío de clave y dudas: <a href="mailto:predictor.mundial.2026@gmail.com">predictor.mundial.2026@gmail.com</a></div>
-  </div>
-
-  <!-- PREMIOS -->
-  <div class="seccion" id="sec-premios">
-    <div class="premios-intro">
-      <h2>💰 Tabla de premios</h2>
-      <p>Mueve el slider para ver cuánto podrías ganar según el número de participantes.</p>
-    </div>
-    <div class="slider-wrap">
-      <div class="slider-label"><span>Participantes inscritos</span><strong id="sliderVal">20</strong></div>
-      <input type="range" min="5" max="100" step="1" value="20" id="sliderPart" oninput="actualizarPremios()">
-    </div>
-    <div class="premios-grid">
-      <div class="premio-card gold"><div class="premio-lugar">🥇</div><div class="premio-titulo">1er lugar</div><div class="premio-monto" id="p1">$3,600</div></div>
-      <div class="premio-card silver"><div class="premio-lugar">🥈</div><div class="premio-titulo">2do lugar</div><div class="premio-monto" id="p2">$1,200</div></div>
-      <div class="premio-card bronze"><div class="premio-lugar">🥉</div><div class="premio-titulo">3er lugar</div><div class="premio-monto" id="p3">$800</div></div>
-    </div>
-    <div class="acumulado-resumen"><span>Premio Acumulado</span><div class="acumulado-total" id="premioAcumulado">$8,000</div></div>
-  </div>
-
-  <!-- PARTIDOS -->
-  <div class="seccion" id="sec-partidos">
-    <div id="miCampeonBanner"></div>
-    <div class="filtros" id="filtros"></div>
-    <div id="listaPartidos"><div class="loading"><div class="spinner"></div>Cargando partidos...</div></div>
-  </div>
-
-  <!-- POSICIONES -->
-  <div class="seccion" id="sec-posiciones">
-    <div id="listaPosiciones"><div class="loading"><div class="spinner"></div>Cargando posiciones...</div></div>
-  </div>
-
-  <!-- REGLAS -->
-  <div class="seccion" id="sec-reglas">
-    <div class="reglas-card">
-      <h3>Descripción general</h3>
-      <p>Mundial entre amigos 2026 es un predictor privado organizado para la Copa del Mundo FIFA 2026, que se celebrará en México, Estados Unidos y Canadá del 11 de junio al 19 de julio de 2026. La participación tiene un costo de inscripción de <strong style="color:var(--texto)">$400 MXN</strong> por persona y está abierta únicamente a los invitados por el comité organizador.</p>
-      <p>La inscripción se considera válida únicamente una vez que el pago haya sido confirmado por el comité organizador. Sin confirmación de pago no se garantiza la participación ni la elegibilidad para premios.</p>
-    </div>
-    <div class="reglas-card">
-      <h3>Mecánica de juego</h3>
-      <p>Cada participante pronostica el marcador exacto (goles local y goles visitante) de cada uno de los 104 partidos del torneo, incluyendo fase de grupos, dieciseisavos, octavos, cuartos de final, semifinales, tercer lugar y final.</p>
-      <p>Adicionalmente, al momento del registro cada participante elige la selección que considera será <strong style="color:var(--texto)">campeona del mundo</strong>. Esta elección queda bloqueada de forma definitiva desde el momento del registro y no puede modificarse bajo ninguna circunstancia.</p>
-      <p>El sistema cierra automáticamente la captura <strong style="color:var(--texto)">una hora antes del inicio de cada partido</strong>. Los pronósticos pueden modificarse cuantas veces se desee antes del cierre.</p>
-      <p>Los resultados se toman al término de los <strong style="color:var(--texto)">90 minutos reglamentarios</strong>. Los tiempos extra y los penaltis no se consideran para efectos de puntuación.</p>
-    </div>
-    <div class="reglas-card">
-      <h3>Sistema de puntuación</h3>
-      <div class="regla-item"><span>Marcador exacto — fase de grupos</span><span class="regla-pts">3 pts</span></div>
-      <div class="regla-item"><span>Resultado correcto (ganador o empate) — fase de grupos</span><span class="regla-pts">1 pt</span></div>
-      <div class="regla-item"><span>Multiplicador dieciseisavos y octavos de final</span><span class="regla-pts">×2</span></div>
-      <div class="regla-item"><span>Multiplicador cuartos de final</span><span class="regla-pts">×3</span></div>
-      <div class="regla-item"><span>Multiplicador semifinal</span><span class="regla-pts">×4</span></div>
-      <div class="regla-item"><span>Multiplicador final</span><span class="regla-pts">×5</span></div>
-      <div class="regla-item"><span>🏆 Campeón elegido correctamente al registrarse</span><span class="regla-pts">+10 pts</span></div>
-      <p style="margin-top:14px">En caso de empate al término del torneo, el desempate se resolverá considerando: mayor número de marcadores exactos, luego mayor número de resultados correctos y, de persistir el empate, el criterio lo definirá el comité organizador.</p>
-    </div>
-    <div class="reglas-card">
-      <h3>Premios y distribución</h3>
-      <p>El Premio Acumulado se conforma por la suma de todas las inscripciones recaudadas. La distribución es la siguiente:</p>
-      <div class="regla-item"><span>🥇 Primer lugar</span><span class="regla-pts">45%</span></div>
-      <div class="regla-item"><span>🥈 Segundo lugar</span><span class="regla-pts">15%</span></div>
-      <div class="regla-item"><span>🥉 Tercer lugar</span><span class="regla-pts">10%</span></div>
-      <div class="regla-item"><span>Gastos de organización y administración</span><span class="regla-pts">30%</span></div>
-      <p style="margin-top:14px">Los premios se entregarán en efectivo dentro de los 7 días naturales siguientes a la conclusión del torneo.</p>
-    </div>
-    <div class="reglas-card">
-      <h3>Forma de pago</h3>
-      <p>El pago de la inscripción se realiza únicamente en <strong style="color:var(--texto)">efectivo</strong> o mediante <strong style="color:var(--texto)">retiro sin tarjeta</strong>. En este último caso, el participante genera una clave de retiro desde su aplicación bancaria por el monto exacto de $400 MXN y la envía al correo <a href="mailto:predictor.mundial.2026@gmail.com" style="color:var(--verde)">predictor.mundial.2026@gmail.com</a>. No se aceptan transferencias, depósitos ni pagos por otros medios.</p>
-    </div>
-    <div class="reglas-card">
-      <h3>Cancelación y caso fortuito</h3>
-      <div class="aviso">El comité organizador se reserva el derecho de cancelar, suspender o modificar el predictor en caso de fuerza mayor, caso fortuito, cancelación del torneo por parte de la FIFA, o cualquier circunstancia ajena a su control que impida la continuidad normal del evento. En caso de cancelación total antes del inicio del torneo, se reembolsará íntegramente el monto de inscripción a cada participante. En caso de cancelación parcial una vez iniciado el torneo, el comité determinará la distribución del Premio Acumulado de manera proporcional y equitativa, comunicándolo oportunamente a todos los participantes.</div>
-    </div>
-    <div class="reglas-card">
-      <h3>Contacto</h3>
-      <p>Para cualquier duda, aclaración o envío de pago: <a href="mailto:predictor.mundial.2026@gmail.com" style="color:var(--verde)">predictor.mundial.2026@gmail.com</a></p>
-      <p style="margin-top:8px">Al registrarse, el participante declara haber leído y aceptado en su totalidad las presentes reglas.</p>
-    </div>
-  </div>
-
-</main>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";  
+const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
 let usuario = null, todosPartidos = [], faseActiva = "Todos";
+
+// ── CIERRE DE INSCRIPCIONES ───────────────────────────
+// Primer partido: 11 jun 2026 19:00 CDMX (UTC-5 en verano) = 11 jun 2026 00:00 UTC del día siguiente
+// 48h antes = 9 jun 2026 19:00 CDMX = 2026-06-10T00:00:00Z
+const CIERRE_INSCRIPCIONES = new Date("2026-06-10T00:00:00Z"); // 9 jun 19:00 CDMX
+
+function inscripcionesAbiertas() {
+  return Date.now() < CIERRE_INSCRIPCIONES.getTime();
+}
+
+function mostrarEstadoInscripciones() {
+  const formReg = document.getElementById('form-registro');
+  const ftabReg = document.getElementById('ftab-registro');
+  if (!inscripcionesAbiertas()) {
+    // Ocultar formulario de registro y tab
+    formReg.innerHTML = `
+      <div style="text-align:center;padding:32px 16px">
+        <div style="font-size:48px;margin-bottom:16px">🔒</div>
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:12px">
+          Inscripciones cerradas
+        </h2>
+        <p style="color:var(--texto-muted);font-size:14px;line-height:1.6">
+          El periodo de inscripción terminó el <strong style="color:var(--texto)">9 de junio a las 19:00 CDMX</strong>.<br>
+          Si ya tienes cuenta, inicia sesión para ver tus pronósticos.
+        </p>
+      </div>`;
+    ftabReg.style.display = 'none';
+    // Mostrar login por defecto
+    mostrarFormTab('login');
+  } else {
+    // Mostrar cuenta regresiva
+    const diff = CIERRE_INSCRIPCIONES.getTime() - Date.now();
+    const dias  = Math.floor(diff / 86400000);
+    const horas = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000) / 60000);
+    const aviso = document.createElement('p');
+    aviso.style.cssText = 'text-align:center;font-size:12px;color:var(--texto-muted);margin-bottom:16px';
+    aviso.innerHTML = `⏳ Inscripciones cierran en <strong style="color:var(--dorado)">${dias}d ${horas}h ${mins}m</strong>`;
+    formReg.insertBefore(aviso, formReg.firstChild);
+  }
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   const g = localStorage.getItem('quinielaMundial_usuario');
@@ -371,6 +56,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnLogin').addEventListener('click', login);
   document.getElementById('btnRecuperar').addEventListener('click', recuperarPassword);
   actualizarPremios();
+  mostrarEstadoInscripciones();
 });
 
 // ── TABS PRINCIPAL ───────────────────────────────────
@@ -417,7 +103,8 @@ function registrar() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        usuario = { id: data.id, nombre, email, campeon };
+        // Guardar token junto con los datos del usuario
+        usuario = { id: data.id, nombre, email, campeon, token: data.token };
         localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
         mostrarUsuario();
         toast('¡Bienvenido! Tu campeón: ' + campeon, 'ok');
@@ -441,7 +128,8 @@ function login() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon };
+        // Guardar token junto con los datos del usuario
+        usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon, token: data.token };
         localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
         mostrarUsuario();
         toast('¡Bienvenido de nuevo, ' + data.nombre.split(' ')[0] + '!', 'ok');
@@ -462,14 +150,10 @@ function recuperarPassword() {
   btn.disabled = true; btn.textContent = 'Enviando...';
   fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'recuperar', email }) })
     .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        toast('Te enviamos tu password por correo', 'ok');
-        setTimeout(() => { ocultarRecuperar(); btn.disabled = false; btn.textContent = 'Enviar password →'; }, 2000);
-      } else {
-        toast(data.error || 'Correo no encontrado', 'err');
-        btn.disabled = false; btn.textContent = 'Enviar password →';
-      }
+    .then(() => {
+      // Siempre mostramos el mismo mensaje (no revelamos si el correo existe)
+      toast('Si el correo está registrado, recibirás un password temporal', 'ok');
+      setTimeout(() => { ocultarRecuperar(); btn.disabled = false; btn.textContent = 'Enviar password →'; }, 2500);
     })
     .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Enviar password →'; });
 }
@@ -543,7 +227,7 @@ function renderPartidos() {
         <div class="guion">—</div>
         <input class="goles-input" type="number" min="0" max="30" step="1" id="gv-${p.id}" value="${pron?pron.golesVisitante:''}" placeholder="0" ${cerrado?'disabled':''}>
       </div>
-      ${!cerrado?`<button class="btn-guardar${pron?' guardado':''}" onclick="guardarPron(${p.id})" id="btn-${p.id}">${pron?'✓ Guardado — clic para actualizar':'Guardar pronóstico'}</button>`:''}
+      ${!cerrado?`<button class="btn-guardar${pron?' guardado':''}" onclick="guardarPron('${p.id}')" id="btn-${p.id}">${pron?'✓ Guardado — clic para actualizar':'Guardar pronóstico'}</button>`:''}
     </div>`;
   }).join('');
 }
@@ -552,9 +236,17 @@ function guardarPron(id) {
   const gl = parseInt(document.getElementById('gl-'+id).value);
   const gv = parseInt(document.getElementById('gv-'+id).value);
   if (isNaN(gl)||isNaN(gv)) { toast('Ingresa el marcador completo','err'); return; }
+  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.','err'); return; }
   const btn = document.getElementById('btn-'+id);
   btn.disabled = true; btn.textContent = 'Guardando...';
-  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'pronostico', participanteId:usuario.id, nombre:usuario.nombre, partidoId:id, golesLocal:gl, golesVisitante:gv }) })
+  // Mandamos token en lugar de participanteId — el servidor verifica la identidad
+  fetch(API, { method: 'POST', body: JSON.stringify({
+    accion: 'pronostico',
+    token: usuario.token,
+    partidoId: id,
+    golesLocal: gl,
+    golesVisitante: gv
+  })})
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
@@ -562,7 +254,15 @@ function guardarPron(id) {
         document.getElementById('card-'+id).classList.add('pronosticado');
         btn.disabled=false; btn.classList.add('guardado'); btn.textContent='✓ Guardado — clic para actualizar';
         toast(data.mensaje,'ok');
-      } else { toast(data.error||'Error al guardar','err'); btn.disabled=false; btn.textContent='Guardar pronóstico'; }
+      } else {
+        toast(data.error||'Error al guardar','err');
+        btn.disabled=false; btn.textContent='Guardar pronóstico';
+        // Si el error es de sesión, limpiar y pedir login de nuevo
+        if (data.error?.includes('Sesión')) {
+          localStorage.removeItem('quinielaMundial_usuario');
+          usuario = null;
+        }
+      }
     })
     .catch(() => { toast('Error de conexión','err'); btn.disabled=false; btn.textContent='Guardar pronóstico'; });
 }
@@ -599,6 +299,3 @@ function toast(msg,tipo) {
   t.textContent=msg; t.className='toast visible '+(tipo||'');
   setTimeout(()=>t.className='toast',3500);
 }
-</script>
-</body>
-</html>
