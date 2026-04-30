@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mundial entre amigos 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -161,6 +162,36 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty-state { text-align: center; padding: 48px 24px; color: var(--texto-muted); font-size: 14px; }
 
+  /* ── Balón animado ── */
+  .trofeo { display: inline-block; animation: balanceo 3s ease-in-out infinite; }
+  @keyframes balanceo { 0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)} }
+
+  /* ── Stepper +/− ── */
+  .stepper { display: flex; align-items: center; gap: 0; background: var(--gris-medio); border: 1px solid var(--gris-borde); border-radius: 8px; overflow: hidden; }
+  .stepper-btn { background: transparent; border: none; color: var(--texto-muted); font-size: 22px; font-weight: 300; padding: 8px 16px; cursor: pointer; transition: background 0.15s, color 0.15s; user-select: none; line-height: 1; }
+  .stepper-btn:hover { background: var(--gris-borde); color: var(--verde); }
+  .stepper-btn:active { background: var(--verde); color: var(--negro); }
+  .stepper-num { flex: 1; text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--texto); min-width: 48px; padding: 8px 4px; pointer-events: none; }
+  .stepper.guardado { border-color: var(--verde); }
+  .stepper.guardado .stepper-num { color: var(--verde); }
+  .stepper.disabled { opacity: 0.45; pointer-events: none; }
+
+  /* ── Progreso de pronósticos ── */
+  .progreso-banner { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
+  .progreso-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progreso-label { font-size: 12px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .progreso-count { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--verde); }
+  .progreso-count span { color: var(--texto-muted); font-size: 14px; }
+  .progreso-bar-wrap { background: var(--gris-medio); border-radius: 4px; height: 6px; overflow: hidden; }
+  .progreso-bar { height: 100%; background: linear-gradient(90deg, var(--verde-dark), var(--verde)); border-radius: 4px; transition: width 0.4s ease; }
+
+  /* ── Separador abiertos/cerrados ── */
+  .separador-estado { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-muted); }
+  .separador-estado::before, .separador-estado::after { content:''; flex:1; height:1px; background:var(--gris-borde); }
+
+  /* ── Fase eliminatoria: nota tooltip ── */
+  .fase-pendiente { font-size: 11px; color: var(--texto-muted); margin-top: 6px; font-style: italic; text-align: center; }
+
   @media (max-width: 540px) {
     .premios-grid { grid-template-columns: 1fr; }
     .pos-header, .pos-row { grid-template-columns: 40px 1fr 80px; }
@@ -192,7 +223,7 @@
   <!-- INICIO -->
   <div class="seccion visible" id="sec-registro">
     <div class="registro-hero">
-      <span class="trofeo">🏆</span>
+      <span class="trofeo">⚽</span>
       <h1>Mundial<br><em>entre amigos</em></h1>
       <p>Pronostica los 104 partidos del Mundial 2026 y compite por los premios.</p>
       <div class="precio-badge">Inscripción: $400 MXN</div>
@@ -269,7 +300,8 @@
   <div class="seccion" id="sec-premios">
     <div class="premios-intro">
       <h2>💰 Tabla de premios</h2>
-      <p>Mueve el slider para ver cuánto podrías ganar según el número de participantes.</p>
+      <p>Los premios dependen del número de participantes inscritos. Mueve el slider para ver cuánto podría ganar cada lugar.</p>
+      <div id="inscritosReal" style="display:none;margin-top:10px;font-size:13px;color:var(--dorado);font-weight:600"></div>
     </div>
     <div class="slider-wrap">
       <div class="slider-label"><span>Participantes inscritos</span><strong id="sliderVal">20</strong></div>
@@ -286,6 +318,7 @@
   <!-- PARTIDOS -->
   <div class="seccion" id="sec-partidos">
     <div id="miCampeonBanner"></div>
+    <div id="progresoBanner"></div>
     <div class="filtros" id="filtros"></div>
     <div id="listaPartidos"><div class="loading"><div class="spinner"></div>Cargando partidos...</div></div>
   </div>
@@ -322,12 +355,11 @@
     </div>
     <div class="reglas-card">
       <h3>Premios y distribución</h3>
-      <p>El Premio Acumulado se conforma por la suma de todas las inscripciones recaudadas. La distribución es la siguiente:</p>
+      <p>El Premio Acumulado se conforma por la suma de todas las inscripciones recaudadas. Los premios son proporcionales al número de participantes inscritos y con pago confirmado:</p>
       <div class="regla-item"><span>🥇 Primer lugar</span><span class="regla-pts">45%</span></div>
       <div class="regla-item"><span>🥈 Segundo lugar</span><span class="regla-pts">15%</span></div>
       <div class="regla-item"><span>🥉 Tercer lugar</span><span class="regla-pts">10%</span></div>
-      <div class="regla-item"><span>Gastos de organización y administración</span><span class="regla-pts">30%</span></div>
-      <p style="margin-top:14px">Los premios se entregarán en efectivo dentro de los 7 días naturales siguientes a la conclusión del torneo.</p>
+      <p style="margin-top:14px">El 30% restante se destina a los gastos de operación del predictor (plataforma, comunicaciones y administración). Los premios se entregarán en efectivo dentro de los 7 días naturales siguientes a la conclusión del torneo.</p>
     </div>
     <div class="reglas-card">
       <h3>Forma de pago</h3>
@@ -351,6 +383,7 @@
 <script>
 const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
 let usuario = null, todosPartidos = [], faseActiva = "Todos";
+let totalInscritos = 0; // se actualiza desde posiciones
 
 const CIERRE_INSCRIPCIONES = new Date("2026-06-10T00:00:00Z");
 
@@ -394,10 +427,12 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnRecuperar').addEventListener('click', recuperarPassword);
   actualizarPremios();
   mostrarEstadoInscripciones();
+  // Cargar posiciones en background para obtener conteo de inscritos
+  cargarPosicionesBackground();
 });
 
 function irATab(tab) {
-  if ((tab === 'partidos' || tab === 'posiciones') && !usuario) { toast('Primero inicia sesión', 'err'); return; }
+  if (tab === 'partidos' && !usuario) { toast('Primero inicia sesión', 'err'); return; }
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-' + tab));
   if (tab === 'partidos') { mostrarBannerCampeon(); cargarPartidos(); }
@@ -499,6 +534,7 @@ function mostrarBannerCampeon() {
   banner.innerHTML = `<div class="mi-campeon-banner"><div><div class="label">Tu campeón elegido</div><div class="valor">🏆 ${usuario.campeon}</div></div><div style="font-size:28px">⚽</div></div>`;
 }
 
+// ── PREMIOS con conteo real ────────────────────────────────────────────────────
 function actualizarPremios() {
   const n = parseInt(document.getElementById('sliderPart').value);
   document.getElementById('sliderVal').textContent = n;
@@ -509,6 +545,61 @@ function actualizarPremios() {
   document.getElementById('p3').textContent = '$' + Math.round(total * 0.10).toLocaleString('es-MX');
 }
 
+function mostrarConteoInscritos(n) {
+  if (!n) return;
+  totalInscritos = n;
+  const el = document.getElementById('inscritosReal');
+  if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = `⚡ ${n} participante${n===1?'':'s'} con pago confirmado — el slider ya refleja este número`;
+  const slider = document.getElementById('sliderPart');
+  if (slider) { slider.value = Math.max(5, n); actualizarPremios(); }
+}
+
+// ── POSICIONES (pública) ──────────────────────────────────────────────────────
+function cargarPosicionesBackground() {
+  fetch(API + '?accion=posiciones')
+    .then(r => r.json())
+    .then(data => {
+      const pos = data.posiciones || [];
+      mostrarConteoInscritos(pos.length);
+    })
+    .catch(() => {});
+}
+
+function cargarPosiciones() {
+  document.getElementById('listaPosiciones').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando posiciones...</div>';
+  fetch(API + '?accion=posiciones')
+    .then(r => r.json())
+    .then(data => {
+      const pos = data.posiciones || [];
+      mostrarConteoInscritos(pos.length);
+      if (!pos.length) {
+        document.getElementById('listaPosiciones').innerHTML =
+          '<div class="empty-state">La tabla estará disponible cuando inicien los partidos.</div>';
+        return;
+      }
+      const cl = ['','top1','top2','top3'], co = ['','gold','silver','bronze'];
+      document.getElementById('listaPosiciones').innerHTML = `
+        <div class="posiciones-tabla">
+          <div class="pos-header"><span>#</span><span>Nombre</span><span>Campeón</span><span style="text-align:center">Exactos</span><span style="text-align:center">Correctos</span><span style="text-align:center">Pts</span></div>
+          ${pos.map(p => `
+          <div class="pos-row ${cl[p.lugar]||''}">
+            <div class="pos-lugar ${co[p.lugar]||''}">${p.lugar}</div>
+            <div class="pos-nombre">${p.nombre}</div>
+            <div class="pos-campeon">${p.campeon||'—'}</div>
+            <div class="pos-num">${p.exactos}</div>
+            <div class="pos-num">${p.correctos}</div>
+            <div class="pos-total">${p.total}</div>
+          </div>`).join('')}
+        </div>`;
+    })
+    .catch(() => {
+      document.getElementById('listaPosiciones').innerHTML = '<div class="empty-state">Error al cargar posiciones.</div>';
+    });
+}
+
+// ── PARTIDOS ──────────────────────────────────────────────────────────────────
 function cargarPartidos() {
   document.getElementById('listaPartidos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando partidos...</div>';
   fetch(API + '?accion=partidos')
@@ -529,88 +620,142 @@ function filtrar(fase) {
   renderPartidos();
 }
 
+// Fases de eliminación donde los equipos aún no se conocen
+const FASES_PENDIENTES = ['Dieciseisavos','Octavos de final','Cuartos de final','Semifinal','3er lugar','Final'];
+
+function esFasePendiente(fase) { return FASES_PENDIENTES.includes(fase); }
+
 function renderPartidos() {
   const ahora = Date.now();
   const lista = faseActiva === 'Todos' ? todosPartidos : todosPartidos.filter(p => p.fase === faseActiva);
-  if (!lista.length) { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">No hay partidos en esta fase todavía.</div>'; return; }
-  document.getElementById('listaPartidos').innerHTML = lista.map(p => {
-    const cerrado = !p.abierto;
-    const urgente = (p.cierreTimestamp - ahora) > 0 && (p.cierreTimestamp - ahora) < 7200000;
-    const pron = JSON.parse(localStorage.getItem('pron_' + p.id) || 'null');
-    return `
-    <div class="partido-card${pron?' pronosticado':''}${cerrado?' cerrado':''}" id="card-${p.id}">
-      <div class="partido-meta">
-        <span class="partido-fase">${p.fase}${p.grupo!=='-'?' · Grupo '+p.grupo:''}</span>
-        <span class="partido-cierre${urgente?' urgente':''}">${cerrado?'🔒 Cerrado':'⏱ Cierre: '+p.fecha+' '+p.cierre+' CDMX'}</span>
+  if (!lista.length) {
+    document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">No hay partidos en esta fase todavía.</div>';
+    return;
+  }
+
+  const abiertos = lista.filter(p => p.abierto);
+  const cerrados = lista.filter(p => !p.abierto);
+
+  // Calcular progreso
+  const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
+  const pronosticados = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + p.id)).length;
+  actualizarProgreso(pronosticados, totalAbiertos);
+
+  let html = '';
+
+  if (abiertos.length) {
+    if (cerrados.length) html += `<div class="separador-estado">⚡ Abiertos</div>`;
+    html += abiertos.map(p => renderPartidoCard(p, ahora)).join('');
+  }
+
+  if (cerrados.length) {
+    html += `<div class="separador-estado">🔒 Cerrados</div>`;
+    html += cerrados.map(p => renderPartidoCard(p, ahora)).join('');
+  }
+
+  document.getElementById('listaPartidos').innerHTML = html;
+}
+
+function actualizarProgreso(hechos, total) {
+  const banner = document.getElementById('progresoBanner');
+  if (!banner) return;
+  if (total === 0) { banner.innerHTML = ''; return; }
+  const pct = Math.round((hechos / total) * 100);
+  banner.innerHTML = `
+    <div class="progreso-banner">
+      <div class="progreso-top">
+        <span class="progreso-label">Mis pronósticos</span>
+        <span class="progreso-count">${hechos} <span>/ ${total} disponibles</span></span>
       </div>
-      <div class="partido-equipos">
-        <div class="equipo-local"><div class="equipo-nombre">${p.local}</div></div>
-        <div class="vs-badge">VS</div>
-        <div class="equipo-visitante"><div class="equipo-nombre">${p.visitante}</div></div>
+      <div class="progreso-bar-wrap">
+        <div class="progreso-bar" style="width:${pct}%"></div>
       </div>
-      <div class="marcador-inputs">
-        <input class="goles-input" type="number" min="0" max="30" step="1" id="gl-${p.id}" value="${pron?pron.golesLocal:''}" placeholder="0" ${cerrado?'disabled':''}>
-        <div class="guion">—</div>
-        <input class="goles-input" type="number" min="0" max="30" step="1" id="gv-${p.id}" value="${pron?pron.golesVisitante:''}" placeholder="0" ${cerrado?'disabled':''}>
-      </div>
-      ${!cerrado?`<button class="btn-guardar${pron?' guardado':''}" onclick="guardarPron('${p.id}')" id="btn-${p.id}">${pron?'✓ Guardado — clic para actualizar':'Guardar pronóstico'}</button>`:''}
     </div>`;
-  }).join('');
+}
+
+function renderPartidoCard(p, ahora) {
+  const cerrado = !p.abierto;
+  const urgente = (p.cierreTimestamp - ahora) > 0 && (p.cierreTimestamp - ahora) < 7200000;
+  const pron = JSON.parse(localStorage.getItem('pron_' + p.id) || 'null');
+  const pendiente = esFasePendiente(p.fase);
+
+  const equipoLocalDisplay  = p.local;
+  const equipoVisitDisplay  = p.visitante;
+
+  return `
+  <div class="partido-card${pron ? ' pronosticado' : ''}${cerrado ? ' cerrado' : ''}" id="card-${p.id}">
+    <div class="partido-meta">
+      <span class="partido-fase">${p.fase}${p.grupo !== '-' ? ' · Grupo ' + p.grupo : ''}</span>
+      <span class="partido-cierre${urgente ? ' urgente' : ''}">${cerrado ? '🔒 Cerrado' : '⏱ Cierre: ' + p.fecha + ' ' + p.cierre + ' CDMX'}</span>
+    </div>
+    <div class="partido-equipos">
+      <div class="equipo-local"><div class="equipo-nombre">${equipoLocalDisplay}</div></div>
+      <div class="vs-badge">VS</div>
+      <div class="equipo-visitante"><div class="equipo-nombre">${equipoVisitDisplay}</div></div>
+    </div>
+    ${pendiente && !pron ? `<p class="fase-pendiente">⏳ Los equipos se definirán al terminar la fase anterior</p>` : ''}
+    <div class="marcador-inputs" style="margin-top:${pendiente && !pron ? '10px' : '0'}">
+      <div class="stepper${pron ? ' guardado' : ''}${cerrado ? ' disabled' : ''}" id="step-l-${p.id}">
+        <button class="stepper-btn" onclick="cambiarGoles('${p.id}','l',-1)" ${cerrado ? 'disabled' : ''}>−</button>
+        <div class="stepper-num" id="gl-${p.id}">${pron ? pron.golesLocal : 0}</div>
+        <button class="stepper-btn" onclick="cambiarGoles('${p.id}','l',1)" ${cerrado ? 'disabled' : ''}>+</button>
+      </div>
+      <div class="guion">—</div>
+      <div class="stepper${pron ? ' guardado' : ''}${cerrado ? ' disabled' : ''}" id="step-v-${p.id}">
+        <button class="stepper-btn" onclick="cambiarGoles('${p.id}','v',-1)" ${cerrado ? 'disabled' : ''}>−</button>
+        <div class="stepper-num" id="gv-${p.id}">${pron ? pron.golesVisitante : 0}</div>
+        <button class="stepper-btn" onclick="cambiarGoles('${p.id}','v',1)" ${cerrado ? 'disabled' : ''}>+</button>
+      </div>
+    </div>
+    ${!cerrado ? `<button class="btn-guardar${pron ? ' guardado' : ''}" onclick="guardarPron('${p.id}')" id="btn-${p.id}">${pron ? '✓ Guardado — clic para actualizar' : 'Guardar pronóstico'}</button>` : ''}
+  </div>`;
+}
+
+function cambiarGoles(id, lado, delta) {
+  const elId = lado === 'l' ? 'gl-' + id : 'gv-' + id;
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const actual = parseInt(el.textContent) || 0;
+  const nuevo = Math.max(0, Math.min(30, actual + delta));
+  el.textContent = nuevo;
 }
 
 function guardarPron(id) {
-  const gl = parseInt(document.getElementById('gl-'+id).value);
-  const gv = parseInt(document.getElementById('gv-'+id).value);
-  if (isNaN(gl)||isNaN(gv)) { toast('Ingresa el marcador completo','err'); return; }
-  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.','err'); return; }
-  const btn = document.getElementById('btn-'+id);
+  const gl = parseInt(document.getElementById('gl-' + id).textContent);
+  const gv = parseInt(document.getElementById('gv-' + id).textContent);
+  if (isNaN(gl) || isNaN(gv)) { toast('Ingresa el marcador completo', 'err'); return; }
+  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.', 'err'); return; }
+  const btn = document.getElementById('btn-' + id);
   btn.disabled = true; btn.textContent = 'Guardando...';
-  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'pronostico', token: usuario.token, partidoId: id, golesLocal: gl, golesVisitante: gv })})
+  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'pronostico', token: usuario.token, partidoId: id, golesLocal: gl, golesVisitante: gv }) })
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        localStorage.setItem('pron_'+id, JSON.stringify({golesLocal:gl,golesVisitante:gv}));
-        document.getElementById('card-'+id).classList.add('pronosticado');
-        btn.disabled=false; btn.classList.add('guardado'); btn.textContent='✓ Guardado — clic para actualizar';
-        toast(data.mensaje,'ok');
+        localStorage.setItem('pron_' + id, JSON.stringify({ golesLocal: gl, golesVisitante: gv }));
+        document.getElementById('card-' + id).classList.add('pronosticado');
+        ['step-l-' + id, 'step-v-' + id].forEach(s => {
+          const el = document.getElementById(s);
+          if (el) el.classList.add('guardado');
+        });
+        btn.disabled = false; btn.classList.add('guardado'); btn.textContent = '✓ Guardado — clic para actualizar';
+        toast(data.mensaje, 'ok');
+        // Actualizar progreso
+        const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
+        const hechos = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + p.id)).length;
+        actualizarProgreso(hechos, totalAbiertos);
       } else {
-        toast(data.error||'Error al guardar','err');
-        btn.disabled=false; btn.textContent='Guardar pronóstico';
+        toast(data.error || 'Error al guardar', 'err');
+        btn.disabled = false; btn.textContent = 'Guardar pronóstico';
         if (data.error?.includes('Sesión')) { localStorage.removeItem('quinielaMundial_usuario'); usuario = null; }
       }
     })
-    .catch(() => { toast('Error de conexión','err'); btn.disabled=false; btn.textContent='Guardar pronóstico'; });
+    .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Guardar pronóstico'; });
 }
 
-function cargarPosiciones() {
-  document.getElementById('listaPosiciones').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando posiciones...</div>';
-  fetch(API + '?accion=posiciones')
-    .then(r => r.json())
-    .then(data => {
-      const pos = data.posiciones||[];
-      if (!pos.length) { document.getElementById('listaPosiciones').innerHTML='<div class="empty-state">La tabla estará disponible cuando inicien los partidos.</div>'; return; }
-      const cl=['','top1','top2','top3'], co=['','gold','silver','bronze'];
-      document.getElementById('listaPosiciones').innerHTML=`
-        <div class="posiciones-tabla">
-          <div class="pos-header"><span>#</span><span>Nombre</span><span>Campeón</span><span style="text-align:center">Exactos</span><span style="text-align:center">Correctos</span><span style="text-align:center">Pts</span></div>
-          ${pos.map(p=>`
-          <div class="pos-row ${cl[p.lugar]||''}">
-            <div class="pos-lugar ${co[p.lugar]||''}">${p.lugar}</div>
-            <div class="pos-nombre">${p.nombre}</div>
-            <div class="pos-campeon">${p.campeon||'—'}</div>
-            <div class="pos-num">${p.exactos}</div>
-            <div class="pos-num">${p.correctos}</div>
-            <div class="pos-total">${p.total}</div>
-          </div>`).join('')}
-        </div>`;
-    })
-    .catch(() => { document.getElementById('listaPosiciones').innerHTML='<div class="empty-state">Error al cargar posiciones.</div>'; });
-}
-
-function toast(msg,tipo) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast visible '+(tipo||'');
-  setTimeout(()=>t.className='toast',3500);
+function toast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast visible ' + (tipo || '');
+  setTimeout(() => t.className = 'toast', 3500);
 }
 </script>
 </body>
