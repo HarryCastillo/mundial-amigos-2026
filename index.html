@@ -551,7 +551,7 @@ function mostrarConteoInscritos(n) {
   const el = document.getElementById('inscritosReal');
   if (!el) return;
   el.style.display = 'block';
-  el.innerHTML = `⚡ ${n} participante${n===1?'':'s'} con pago confirmado — el slider ya refleja este número`;
+  el.innerHTML = `⚡ ${n} participante${n===1?'':'s'} confirmado${n===1?'':'s'} hasta ahora`;
   const slider = document.getElementById('sliderPart');
   if (slider) { slider.value = Math.max(5, n); actualizarPremios(); }
 }
