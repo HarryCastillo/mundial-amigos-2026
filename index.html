@@ -638,7 +638,7 @@ function renderPartidos() {
 
   // Calcular progreso
   const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
-  const pronosticados = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + p.id)).length;
+  const pronosticados = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + usuario.id + '_' + p.id)).length;
   actualizarProgreso(pronosticados, totalAbiertos);
 
   let html = '';
@@ -676,7 +676,7 @@ function actualizarProgreso(hechos, total) {
 function renderPartidoCard(p, ahora) {
   const cerrado = !p.abierto;
   const urgente = (p.cierreTimestamp - ahora) > 0 && (p.cierreTimestamp - ahora) < 7200000;
-  const pron = JSON.parse(localStorage.getItem('pron_' + p.id) || 'null');
+  const pron = JSON.parse(localStorage.getItem('pron_' + usuario.id + '_' + p.id) || 'null');
   const pendiente = esFasePendiente(p.fase);
 
   const equipoLocalDisplay  = p.local;
@@ -731,7 +731,7 @@ function guardarPron(id) {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        localStorage.setItem('pron_' + id, JSON.stringify({ golesLocal: gl, golesVisitante: gv }));
+        localStorage.setItem('pron_' + usuario.id + '_' + id, JSON.stringify({ golesLocal: gl, golesVisitante: gv }));
         document.getElementById('card-' + id).classList.add('pronosticado');
         ['step-l-' + id, 'step-v-' + id].forEach(s => {
           const el = document.getElementById(s);
@@ -741,7 +741,7 @@ function guardarPron(id) {
         toast(data.mensaje, 'ok');
         // Actualizar progreso
         const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
-        const hechos = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + p.id)).length;
+        const hechos = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + usuario.id + '_' + p.id)).length;
         actualizarProgreso(hechos, totalAbiertos);
       } else {
         toast(data.error || 'Error al guardar', 'err');
