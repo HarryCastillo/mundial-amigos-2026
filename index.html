@@ -38,6 +38,13 @@
   .registro-hero p { color: var(--texto-muted); font-size: 15px; margin-bottom: 24px; }
   .precio-badge { display: inline-block; background: var(--dorado); color: var(--negro); font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 8px 24px; border-radius: 6px; margin-bottom: 32px; }
 
+  /* ── Instrucciones de registro ── */
+  .instrucciones-registro { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .instruccion-step { display: flex; align-items: flex-start; gap: 14px; }
+  .instruccion-num { background: var(--verde); color: var(--negro); font-family: 'Bebas Neue', sans-serif; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .instruccion-texto { font-size: 14px; color: var(--texto-muted); line-height: 1.5; }
+  .instruccion-texto strong { color: var(--texto); }
+
   .form-tabs { display: flex; max-width: 440px; margin: 0 auto 24px; background: var(--gris-medio); border-radius: 10px; padding: 4px; gap: 4px; }
   .form-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; color: var(--texto-muted); cursor: pointer; border-radius: 7px; transition: all 0.2s; }
   .form-tab.active { background: var(--card-bg); color: var(--texto); }
@@ -229,7 +236,22 @@
       <div class="precio-badge">Inscripción: $400 MXN</div>
     </div>
 
-    <div class="form-tabs">
+    <div class="instrucciones-registro">
+    <div class="instruccion-step">
+      <div class="instruccion-num">1</div>
+      <div class="instruccion-texto"><strong>Regístrate</strong> — Llena el formulario con tus datos y elige tu campeón.</div>
+    </div>
+    <div class="instruccion-step">
+      <div class="instruccion-num">2</div>
+      <div class="instruccion-texto"><strong>Haz tu pago</strong> — $400 MXN en efectivo o retiro sin tarjeta. Avísale al organizador cuando lo hayas hecho.</div>
+    </div>
+    <div class="instruccion-step">
+      <div class="instruccion-num">3</div>
+      <div class="instruccion-texto"><strong>Espera confirmación</strong> — En cuanto validemos tu pago, ya puedes entrar y pronosticar todos los partidos.</div>
+    </div>
+  </div>
+
+  <div class="form-tabs">
       <div class="form-tab active" id="ftab-registro" onclick="mostrarFormTab('registro')">Soy nuevo</div>
       <div class="form-tab" id="ftab-login" onclick="mostrarFormTab('login')">Ya tengo cuenta</div>
     </div>
