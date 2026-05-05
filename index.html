@@ -88,6 +88,8 @@
   .mi-campeon-banner { background: rgba(0,192,107,0.07); border: 1px solid rgba(0,192,107,0.25); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .mi-campeon-banner .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-muted); margin-bottom: 2px; }
   .mi-campeon-banner .valor { font-weight: 600; font-size: 15px; color: var(--verde); }
+  .btn-cambiar-campeon { background: transparent; border: 1px solid var(--verde); color: var(--verde); border-radius: 6px; padding: 6px 14px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-cambiar-campeon:hover { background: var(--verde); color: var(--negro); }
 
   .premios-intro { text-align: center; margin-bottom: 24px; }
   .premios-intro h2 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; margin-bottom: 8px; }
@@ -553,7 +555,55 @@ function mostrarUsuario() {
 function mostrarBannerCampeon() {
   const banner = document.getElementById('miCampeonBanner');
   if (!usuario || !usuario.campeon) { banner.innerHTML = ''; return; }
-  banner.innerHTML = `<div class="mi-campeon-banner"><div><div class="label">Tu campeón elegido</div><div class="valor">🏆 ${usuario.campeon}</div></div><div style="font-size:28px">⚽</div></div>`;
+  const LIMITE_CAMPEON = new Date("2026-06-11T17:00:00Z");
+  const puedeCambiar = Date.now() < LIMITE_CAMPEON.getTime();
+  const opcionesSelect = document.getElementById('regCampeon')?.innerHTML || '';
+  banner.innerHTML = `
+    <div class="mi-campeon-banner">
+      <div>
+        <div class="label">Tu campeón elegido</div>
+        <div class="valor">🏆 ${usuario.campeon}</div>
+      </div>
+      ${puedeCambiar ? `<button class="btn-cambiar-campeon" onclick="mostrarCambiarCampeon()">Cambiar</button>` : '<div style="font-size:28px">⚽</div>'}
+    </div>
+    ${puedeCambiar ? `
+    <div id="formCampeon" style="display:none;background:var(--card-bg);border:1px solid var(--gris-borde);border-radius:10px;padding:16px;margin-top:10px;">
+      <div class="campo">
+        <label>Nuevo campeón</label>
+        <select id="nuevoCampeon">${opcionesSelect}</select>
+      </div>
+      <button class="btn-primary" style="margin-top:8px" onclick="guardarCampeon()">Confirmar cambio</button>
+      <button class="btn-link" onclick="ocultarCambiarCampeon()">Cancelar</button>
+    </div>` : ''}`;
+}
+
+function mostrarCambiarCampeon() {
+  const f = document.getElementById('formCampeon');
+  if (f) f.style.display = 'block';
+}
+
+function ocultarCambiarCampeon() {
+  const f = document.getElementById('formCampeon');
+  if (f) f.style.display = 'none';
+}
+
+function guardarCampeon() {
+  const campeon = document.getElementById('nuevoCampeon')?.value;
+  if (!campeon) { toast('Elige una selección', 'err'); return; }
+  if (!usuario?.token) { toast('Sesión expirada', 'err'); return; }
+  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'cambiarCampeon', token: usuario.token, campeon }) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        usuario.campeon = data.campeon;
+        localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
+        toast('¡Campeón actualizado a ' + data.campeon + '!', 'ok');
+        mostrarBannerCampeon();
+      } else {
+        toast(data.error || 'Error al cambiar campeón', 'err');
+      }
+    })
+    .catch(() => toast('Error de conexión', 'err'));
 }
 
 // ── PREMIOS con conteo real ────────────────────────────────────────────────────
