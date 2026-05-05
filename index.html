@@ -611,7 +611,8 @@ function actualizarPremios() {
   const n = parseInt(document.getElementById('sliderPart').value);
   document.getElementById('sliderVal').textContent = n;
   const total = n * 400;
-  document.getElementById('premioAcumulado').textContent = '$' + total.toLocaleString('es-MX');
+  const acumulado = Math.round(total * 0.70);
+  document.getElementById('premioAcumulado').textContent = '$' + acumulado.toLocaleString('es-MX');
   document.getElementById('p1').textContent = '$' + Math.round(total * 0.45).toLocaleString('es-MX');
   document.getElementById('p2').textContent = '$' + Math.round(total * 0.15).toLocaleString('es-MX');
   document.getElementById('p3').textContent = '$' + Math.round(total * 0.10).toLocaleString('es-MX');
