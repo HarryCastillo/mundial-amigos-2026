@@ -362,7 +362,7 @@
     <div class="reglas-card">
       <h3>Mecánica de juego</h3>
       <p>Cada participante pronostica el marcador exacto (goles local y goles visitante) de cada uno de los 104 partidos del torneo, incluyendo fase de grupos, dieciseisavos, octavos, cuartos de final, semifinales, tercer lugar y final.</p>
-      <p>Adicionalmente, al momento del registro cada participante elige la selección que considera será <strong style="color:var(--texto)">campeona del mundo</strong>. Esta elección queda bloqueada de forma definitiva desde el momento del registro y no puede modificarse bajo ninguna circunstancia.</p>
+      <p>Adicionalmente, al momento del registro cada participante elige la selección que considera será <strong style="color:var(--texto)">campeona del mundo</strong>. Esta elección puede modificarse hasta el <strong style="color:var(--texto)">11 de junio a las 12:00 CDMX</strong> (una hora antes del primer partido). Después de esa fecha y hora queda bloqueada de forma definitiva.</p>
       <p>El sistema cierra automáticamente la captura <strong style="color:var(--texto)">una hora antes del inicio de cada partido</strong>. Los pronósticos pueden modificarse cuantas veces se desee antes del cierre.</p>
       <p>Los resultados se toman al término de los <strong style="color:var(--texto)">90 minutos reglamentarios</strong>. Los tiempos extra y los penaltis no se consideran para efectos de puntuación.</p>
     </div>
@@ -451,8 +451,12 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnRecuperar').addEventListener('click', recuperarPassword);
   actualizarPremios();
   mostrarEstadoInscripciones();
-  // Cargar posiciones en background para obtener conteo de inscritos
   cargarPosicionesBackground();
+
+  // Manejar unsubscribe por URL
+  const params = new URLSearchParams(window.location.search);
+  const unsubEmail = params.get('unsub');
+  if (unsubEmail) procesarUnsub(unsubEmail);
 });
 
 function irATab(tab) {
@@ -604,6 +608,41 @@ function guardarCampeon() {
       }
     })
     .catch(() => toast('Error de conexión', 'err'));
+}
+
+function procesarUnsub(email) {
+  // Ocultar todo y mostrar pantalla de unsub
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('main').innerHTML = `
+    <div style="text-align:center;padding:60px 24px;max-width:440px;margin:0 auto">
+      <div style="font-size:48px;margin-bottom:16px">📧</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:12px">Cancelar suscripción</h2>
+      <p style="color:var(--texto-muted);font-size:14px;line-height:1.6;margin-bottom:24px">
+        ¿Confirmas que ya no quieres recibir correos del predictor Mundial entre amigos 2026?<br>
+        <strong style="color:var(--texto)">${email}</strong>
+      </p>
+      <button class="btn-primary" id="btnConfirmarUnsub" onclick="confirmarUnsub('${email}')">Sí, cancelar suscripción</button>
+      <button class="btn-link" onclick="window.location.href='https://harrycastillo.github.io/mundial-amigos-2026/'">No, mantener suscripción</button>
+    </div>`;
+}
+
+function confirmarUnsub(email) {
+  const btn = document.getElementById('btnConfirmarUnsub');
+  btn.disabled = true; btn.textContent = 'Procesando...';
+  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'unsub', email }) })
+    .then(r => r.json())
+    .then(() => {
+      document.querySelector('main').innerHTML = `
+        <div style="text-align:center;padding:60px 24px;max-width:440px;margin:0 auto">
+          <div style="font-size:48px;margin-bottom:16px">✅</div>
+          <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:12px">Listo</h2>
+          <p style="color:var(--texto-muted);font-size:14px;line-height:1.6">
+            Tu correo ha sido dado de baja. Ya no recibirás comunicaciones del predictor.
+          </p>
+        </div>`;
+    })
+    .catch(() => toast('Error al procesar. Intenta de nuevo.', 'err'));
 }
 
 // ── PREMIOS con conteo real ────────────────────────────────────────────────────
