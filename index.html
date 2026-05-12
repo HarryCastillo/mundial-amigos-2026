@@ -18,9 +18,13 @@
   header { background: var(--gris-oscuro); border-bottom: 2px solid var(--verde); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
   .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
   .logo span { color: var(--verde); }
-  .user-badge { display: none; align-items: center; gap: 10px; font-size: 13px; color: var(--texto-muted); }
+  .user-badge { display: none; align-items: center; gap: 10px; font-size: 13px; color: var(--texto-muted); cursor: pointer; position: relative; }
   .user-badge.visible { display: flex; }
   .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--verde); color: var(--negro); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+  .user-menu { display: none; position: absolute; top: 44px; right: 0; background: var(--gris-oscuro); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 4px; min-width: 140px; z-index: 200; }
+  .user-menu.visible { display: block; }
+  .user-menu-item { padding: 10px 14px; font-size: 13px; color: var(--texto-muted); cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+  .user-menu-item:hover { background: var(--gris-medio); color: var(--rojo); }
 
   .tabs { display: flex; border-bottom: 1px solid var(--gris-borde); background: var(--gris-oscuro); padding: 0 24px; overflow-x: auto; }
   .tab { padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--texto-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
@@ -213,9 +217,12 @@
 
 <header>
   <div class="logo">Mundial <span>entre amigos</span> 2026</div>
-  <div class="user-badge" id="userBadge">
+  <div class="user-badge" id="userBadge" onclick="toggleUserMenu()">
     <div class="user-avatar" id="userAvatar"></div>
     <span id="userName"></span>
+    <div class="user-menu" id="userMenu">
+      <div class="user-menu-item" onclick="cerrarSesion()">🚪 Cerrar sesión</div>
+    </div>
   </div>
 </header>
 
@@ -548,6 +555,28 @@ function recuperarPassword() {
       setTimeout(() => { ocultarRecuperar(); btn.disabled = false; btn.textContent = 'Enviar password →'; }, 2500);
     })
     .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Enviar password →'; });
+}
+
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('visible');
+}
+
+// Cerrar menú al hacer clic fuera
+document.addEventListener('click', e => {
+  if (!document.getElementById('userBadge')?.contains(e.target)) {
+    document.getElementById('userMenu')?.classList.remove('visible');
+  }
+});
+
+function cerrarSesion() {
+  localStorage.removeItem('quinielaMundial_usuario');
+  usuario = null;
+  document.getElementById('userBadge').classList.remove('visible');
+  document.getElementById('userMenu').classList.remove('visible');
+  // Regresar a inicio
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'registro'));
+  document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-registro'));
+  toast('Sesión cerrada', 'ok');
 }
 
 function mostrarUsuario() {
