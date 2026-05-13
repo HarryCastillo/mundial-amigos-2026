@@ -205,11 +205,34 @@
   /* ── Fase eliminatoria: nota tooltip ── */
   .fase-pendiente { font-size: 11px; color: var(--texto-muted); margin-top: 6px; font-style: italic; text-align: center; }
 
+  /* ── Standings públicos ── */
+  .grupos-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .grupo-btn { padding: 5px 12px; border-radius: 16px; border: 1px solid var(--gris-borde); background: transparent; color: var(--texto-muted); font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .grupo-btn:hover { border-color: var(--verde); color: var(--verde); }
+  .grupo-btn.active { background: var(--verde); color: var(--negro); border-color: var(--verde); font-weight: 600; }
+  .grupo-bloque { margin-bottom: 28px; }
+  .grupo-titulo-pub { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--verde); margin-bottom: 10px; }
+  .pub-tabla { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 10px; overflow: hidden; }
+  .pub-header { display: grid; grid-template-columns: 1fr 36px 36px 36px 44px 44px 44px 48px; padding: 8px 14px; background: var(--gris-medio); font-size: 10px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; gap: 4px; }
+  .pub-row { display: grid; grid-template-columns: 1fr 36px 36px 36px 44px 44px 44px 48px; padding: 10px 14px; border-top: 1px solid var(--gris-borde); align-items: center; gap: 4px; transition: background 0.15s; }
+  .pub-row:hover { background: rgba(255,255,255,0.02); }
+  .pub-row.clasificado { background: rgba(0,192,107,0.05); }
+  .pub-equipo { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+  .pub-asterisco { color: var(--verde); font-size: 12px; font-weight: 700; }
+  .pub-num { text-align: center; font-size: 13px; color: var(--texto-muted); }
+  .pub-pts { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--verde); }
+  .grupos-nota { font-size: 11px; color: var(--texto-muted); margin-top: 8px; }
+
   @media (max-width: 540px) {
     .premios-grid { grid-template-columns: 1fr; }
     .pos-header, .pos-row { grid-template-columns: 40px 1fr 80px; }
     .pos-header span:nth-child(3), .pos-header span:nth-child(4), .pos-header span:nth-child(5),
     .pos-row div:nth-child(3), .pos-row div:nth-child(4), .pos-row div:nth-child(5) { display: none; }
+    .pub-header, .pub-row { grid-template-columns: 1fr 36px 44px 48px; }
+    .pub-header span:nth-child(2), .pub-header span:nth-child(3), .pub-header span:nth-child(4),
+    .pub-header span:nth-child(6), .pub-header span:nth-child(7),
+    .pub-row div:nth-child(2), .pub-row div:nth-child(3), .pub-row div:nth-child(4),
+    .pub-row div:nth-child(6), .pub-row div:nth-child(7) { display: none; }
   }
 </style>
 </head>
@@ -231,6 +254,7 @@
   <div class="tab" data-tab="premios">Premios</div>
   <div class="tab" data-tab="partidos">Pronósticos</div>
   <div class="tab" data-tab="posiciones">Posiciones</div>
+  <div class="tab" data-tab="grupos">Grupos</div>
   <div class="tab" data-tab="reglas">Reglas</div>
 </div>
 
@@ -359,6 +383,12 @@
     <div id="listaPosiciones"><div class="loading"><div class="spinner"></div>Cargando posiciones...</div></div>
   </div>
 
+  <!-- GRUPOS -->
+  <div class="seccion" id="sec-grupos">
+    <div class="grupos-filtros" id="gruposFiltros"></div>
+    <div id="listaGrupos"><div class="loading"><div class="spinner"></div>Cargando grupos...</div></div>
+  </div>
+
   <!-- REGLAS -->
   <div class="seccion" id="sec-reglas">
     <div class="reglas-card">
@@ -472,6 +502,80 @@ function irATab(tab) {
   document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-' + tab));
   if (tab === 'partidos') { mostrarBannerCampeon(); cargarPartidos(); }
   if (tab === 'posiciones') cargarPosiciones();
+  if (tab === 'grupos') cargarGrupos();
+}
+
+// ── GRUPOS / STANDINGS ────────────────────────────────────────────────────────
+let standingsData = {};
+let grupoActivoFiltro = 'Todos';
+
+function cargarGrupos() {
+  document.getElementById('listaGrupos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando grupos...</div>';
+  fetch(API + '?accion=standings')
+    .then(r => r.json())
+    .then(data => {
+      standingsData = data.standings || {};
+      construirFiltrosGrupos();
+      renderGrupos();
+    })
+    .catch(() => {
+      document.getElementById('listaGrupos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>';
+    });
+}
+
+function construirFiltrosGrupos() {
+  const grupos = Object.keys(standingsData).sort();
+  const filtros = document.getElementById('gruposFiltros');
+  if (!grupos.length) { filtros.innerHTML = ''; return; }
+  filtros.innerHTML = ['Todos', ...grupos].map(g =>
+    `<button class="grupo-btn${g === grupoActivoFiltro ? ' active' : ''}" onclick="filtrarGrupo('${g}')">${g === 'Todos' ? 'Todos' : 'Grupo ' + g}</button>`
+  ).join('');
+}
+
+function filtrarGrupo(g) {
+  grupoActivoFiltro = g;
+  document.querySelectorAll('.grupo-btn').forEach(b => b.classList.toggle('active', b.textContent === (g === 'Todos' ? 'Todos' : 'Grupo ' + g)));
+  renderGrupos();
+}
+
+function renderGrupos() {
+  const grupos = Object.keys(standingsData).sort();
+  if (!grupos.length) {
+    document.getElementById('listaGrupos').innerHTML = '<div class="empty-state">La tabla de grupos estará disponible cuando inicien los partidos.</div>';
+    return;
+  }
+  const mostrar = grupoActivoFiltro === 'Todos' ? grupos : [grupoActivoFiltro];
+  let html = '';
+  mostrar.forEach(grupo => {
+    const equipos = standingsData[grupo] || [];
+    html += `<div class="grupo-bloque">
+      <div class="grupo-titulo-pub">Grupo ${grupo}</div>
+      <div class="pub-tabla">
+        <div class="pub-header">
+          <span>Equipo</span><span style="text-align:center">PJ</span>
+          <span style="text-align:center">G</span><span style="text-align:center">E</span>
+          <span style="text-align:center">GF</span><span style="text-align:center">GC</span>
+          <span style="text-align:center">DG</span><span style="text-align:center">Pts</span>
+        </div>
+        ${equipos.map(eq => `
+        <div class="pub-row${eq.clasificado ? ' clasificado' : ''}">
+          <div class="pub-equipo">
+            ${eq.clasificado ? '<span class="pub-asterisco">*</span>' : ''}
+            ${eq.nombre}
+          </div>
+          <div class="pub-num">${eq.pj}</div>
+          <div class="pub-num">${eq.g}</div>
+          <div class="pub-num">${eq.e}</div>
+          <div class="pub-num">${eq.gf}</div>
+          <div class="pub-num">${eq.gc}</div>
+          <div class="pub-num">${eq.dg > 0 ? '+' + eq.dg : eq.dg}</div>
+          <div class="pub-pts">${eq.pts}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '<p class="grupos-nota">* Clasificado a la siguiente ronda</p>';
+  document.getElementById('listaGrupos').innerHTML = html;
 }
 
 function mostrarFormTab(tab) {
