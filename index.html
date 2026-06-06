@@ -846,12 +846,28 @@ function cargarPosiciones() {
 }
 
 // ── PARTIDOS ──────────────────────────────────────────────────────────────────
+
 function cargarPartidos() {
   document.getElementById('listaPartidos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando partidos...</div>';
-  fetch(API + '?accion=partidos')
-    .then(r => r.json())
-    .then(data => { todosPartidos = data.partidos || []; construirFiltros(); renderPartidos(); })
-    .catch(() => { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>'; });
+  const syncProns = usuario?.token
+    ? fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'misPronosticos', token: usuario.token }) })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok && data.pronosticos) {
+            Object.entries(data.pronosticos).forEach(([partidoId, pron]) => {
+              localStorage.setItem('pron_' + usuario.id + '_' + partidoId, JSON.stringify(pron));
+            });
+          }
+        })
+        .catch(() => {})
+    : Promise.resolve();
+
+  syncProns.then(() => {
+    fetch(API + '?accion=partidos')
+      .then(r => r.json())
+      .then(data => { todosPartidos = data.partidos || []; construirFiltros(); renderPartidos(); })
+      .catch(() => { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>'; });
+  });
 }
 
 function construirFiltros() {
