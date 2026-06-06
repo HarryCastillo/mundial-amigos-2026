@@ -397,6 +397,13 @@
       <p>La inscripción se considera válida únicamente una vez que el pago haya sido confirmado por el comité organizador. Sin confirmación de pago no se garantiza la participación ni la elegibilidad para premios.</p>
     </div>
     <div class="reglas-card">
+      <h3>Fechas clave</h3>
+      <div class="regla-item"><span>📝 Cierre de inscripciones</span><span class="regla-pts" style="font-size:13px">10 jun · 18:00 CDMX</span></div>
+      <div class="regla-item"><span>💳 Límite de recepción de pago</span><span class="regla-pts" style="font-size:13px">10 jun · 23:59 CDMX</span></div>
+      <div class="regla-item"><span>🏆 Cierre de elección de campeón</span><span class="regla-pts" style="font-size:13px">11 jun · 12:00 CDMX</span></div>
+      <div class="regla-item"><span>⚽ Primer partido</span><span class="regla-pts" style="font-size:13px">11 jun · 13:00 CDMX</span></div>
+    </div>
+    <div class="reglas-card">
       <h3>Mecánica de juego</h3>
       <p>Cada participante pronostica el marcador exacto (goles local y goles visitante) de cada uno de los 104 partidos del torneo, incluyendo fase de grupos, dieciseisavos, octavos, cuartos de final, semifinales, tercer lugar y final.</p>
       <p>Adicionalmente, al momento del registro cada participante elige la selección que considera será <strong style="color:var(--texto)">campeona del mundo</strong>. Esta elección puede modificarse hasta el <strong style="color:var(--texto)">11 de junio a las 12:00 CDMX</strong> (una hora antes del primer partido). Después de esa fecha y hora queda bloqueada de forma definitiva.</p>
@@ -447,7 +454,7 @@ const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
 let usuario = null, todosPartidos = [], faseActiva = "Todos";
 let totalInscritos = 0; // se actualiza desde posiciones
 
-const CIERRE_INSCRIPCIONES = new Date("2026-06-10T00:00:00Z");
+const CIERRE_INSCRIPCIONES = new Date("2026-06-10T23:00:00Z");
 
 function inscripcionesAbiertas() {
   return Date.now() < CIERRE_INSCRIPCIONES.getTime();
@@ -462,7 +469,7 @@ function mostrarEstadoInscripciones() {
         <div style="font-size:48px;margin-bottom:16px">🔒</div>
         <h2 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:12px">Inscripciones cerradas</h2>
         <p style="color:var(--texto-muted);font-size:14px;line-height:1.6">
-          El periodo de inscripción terminó el <strong style="color:var(--texto)">9 de junio a las 19:00 CDMX</strong>.<br>
+          El periodo de inscripción terminó el <strong style="color:var(--texto)">10 de junio a las 18:00 CDMX</strong>.<br>
           Si ya tienes cuenta, inicia sesión para ver tus pronósticos.
         </p>
       </div>`;
@@ -635,11 +642,9 @@ function login() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-  usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon, token: data.token };
-  localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
-  Object.keys(localStorage).filter(k => k.startsWith('pron_')).forEach(k => localStorage.removeItem(k));
-  mostrarUsuario();
-      
+        usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon, token: data.token };
+        localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
+        mostrarUsuario();
         toast('¡Bienvenido de nuevo, ' + data.nombre.split(' ')[0] + '!', 'ok');
         setTimeout(() => irATab('partidos'), 1000);
       } else {
@@ -848,28 +853,12 @@ function cargarPosiciones() {
 }
 
 // ── PARTIDOS ──────────────────────────────────────────────────────────────────
-
 function cargarPartidos() {
   document.getElementById('listaPartidos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando partidos...</div>';
-  const syncProns = usuario?.token
-    ? fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'misPronosticos', token: usuario.token }) })
-        .then(r => r.json())
-        .then(data => {
-          if (data.ok && data.pronosticos) {
-            Object.entries(data.pronosticos).forEach(([partidoId, pron]) => {
-              localStorage.setItem('pron_' + usuario.id + '_' + partidoId, JSON.stringify(pron));
-            });
-          }
-        })
-        .catch(() => {})
-    : Promise.resolve();
-
-  syncProns.then(() => {
-    fetch(API + '?accion=partidos')
-      .then(r => r.json())
-      .then(data => { todosPartidos = data.partidos || []; construirFiltros(); renderPartidos(); })
-      .catch(() => { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>'; });
-  });
+  fetch(API + '?accion=partidos')
+    .then(r => r.json())
+    .then(data => { todosPartidos = data.partidos || []; construirFiltros(); renderPartidos(); })
+    .catch(() => { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>'; });
 }
 
 function construirFiltros() {
