@@ -635,9 +635,11 @@ function login() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon, token: data.token };
-        localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
-        mostrarUsuario();
+  usuario = { id: data.id, nombre: data.nombre, email, campeon: data.campeon, token: data.token };
+  localStorage.setItem('quinielaMundial_usuario', JSON.stringify(usuario));
+  Object.keys(localStorage).filter(k => k.startsWith('pron_')).forEach(k => localStorage.removeItem(k));
+  mostrarUsuario();
+      
         toast('¡Bienvenido de nuevo, ' + data.nombre.split(' ')[0] + '!', 'ok');
         setTimeout(() => irATab('partidos'), 1000);
       } else {
