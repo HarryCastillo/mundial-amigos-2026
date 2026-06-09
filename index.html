@@ -752,20 +752,45 @@ function guardarCampeon() {
 }
 
 function procesarUnsub(email) {
-  // Ocultar todo y mostrar pantalla de unsub
   document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('main').innerHTML = `
-    <div style="text-align:center;padding:60px 24px;max-width:440px;margin:0 auto">
-      <div style="font-size:48px;margin-bottom:16px">📧</div>
-      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:12px">Cancelar suscripción</h2>
-      <p style="color:var(--texto-muted);font-size:14px;line-height:1.6;margin-bottom:24px">
-        ¿Confirmas que ya no quieres recibir correos del predictor Mundial entre amigos 2026?<br>
-        <strong style="color:var(--texto)">${email}</strong>
-      </p>
-      <button class="btn-primary" id="btnConfirmarUnsub" onclick="confirmarUnsub('${email}')">Sí, cancelar suscripción</button>
-      <button class="btn-link" onclick="window.location.href='https://harrycastillo.github.io/mundial-amigos-2026/'">No, mantener suscripción</button>
-    </div>`;
+
+  const main = document.querySelector('main');
+  main.innerHTML = '';
+
+  const container = document.createElement('div');
+  container.style.cssText = 'text-align:center;padding:60px 24px;max-width:440px;margin:0 auto';
+
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size:48px;margin-bottom:16px';
+  icon.textContent = '📧';
+
+  const title = document.createElement('h2');
+  title.style.cssText = "font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:12px";
+  title.textContent = 'Cancelar suscripción';
+
+  const desc = document.createElement('p');
+  desc.style.cssText = 'color:var(--texto-muted);font-size:14px;line-height:1.6;margin-bottom:24px';
+  desc.textContent = '¿Confirmas que ya no quieres recibir correos del predictor Mundial entre amigos 2026?';
+  const strong = document.createElement('strong');
+  strong.style.color = 'var(--texto)';
+  strong.textContent = email;
+  desc.appendChild(document.createElement('br'));
+  desc.appendChild(strong);
+
+  const btnConfirmar = document.createElement('button');
+  btnConfirmar.className = 'btn-primary';
+  btnConfirmar.id = 'btnConfirmarUnsub';
+  btnConfirmar.textContent = 'Sí, cancelar suscripción';
+  btnConfirmar.addEventListener('click', () => confirmarUnsub(email));
+
+  const btnCancelar = document.createElement('button');
+  btnCancelar.className = 'btn-link';
+  btnCancelar.textContent = 'No, mantener suscripción';
+  btnCancelar.addEventListener('click', () => { window.location.href = 'https://harrycastillo.github.io/mundial-amigos-2026/'; });
+
+  container.append(icon, title, desc, btnConfirmar, btnCancelar);
+  main.appendChild(container);
 }
 
 function confirmarUnsub(email) {
