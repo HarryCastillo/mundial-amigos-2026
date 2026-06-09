@@ -855,9 +855,28 @@ function cargarPosiciones() {
 // ── PARTIDOS ──────────────────────────────────────────────────────────────────
 function cargarPartidos() {
   document.getElementById('listaPartidos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando partidos...</div>';
-  fetch(API + '?accion=partidos')
-    .then(r => r.json())
-    .then(data => { todosPartidos = data.partidos || []; construirFiltros(); renderPartidos(); })
+
+  // Limpiar pronósticos locales para forzar recarga limpia desde Firestore
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('pron_'))
+    .forEach(k => localStorage.removeItem(k));
+
+  // Cargar partidos y pronósticos en paralelo
+  Promise.all([
+    fetch(API + '?accion=partidos').then(r => r.json()),
+    fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'misPronosticos', token: usuario.token }) }).then(r => r.json())
+  ])
+    .then(([dataPartidos, dataProns]) => {
+      todosPartidos = dataPartidos.partidos || [];
+      // Sincronizar pronósticos de Firestore → localStorage
+      if (dataProns.ok && dataProns.pronosticos) {
+        Object.entries(dataProns.pronosticos).forEach(([partidoId, pron]) => {
+          localStorage.setItem('pron_' + usuario.id + '_' + partidoId, JSON.stringify(pron));
+        });
+      }
+      construirFiltros();
+      renderPartidos();
+    })
     .catch(() => { document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Error al cargar. Intenta de nuevo.</div>'; });
 }
 
