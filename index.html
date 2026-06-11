@@ -859,7 +859,7 @@ function cargarPosiciones() {
             <div class="pos-nombre">${p.nombre}</div>
             <div class="pos-campeon">${p.campeon||'—'}</div>
             <div class="pos-num">${p.exactos}</div>
-            <div class="pos-num">${p.correctos}</div>
+            <div class="pos-num">${(p.correctos||0) - (p.exactos||0)}</div>
             <div class="pos-total">${p.total}</div>
           </div>`).join('')}
         </div>`;
