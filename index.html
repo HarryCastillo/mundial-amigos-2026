@@ -251,10 +251,10 @@
 
 <div class="tabs">
   <div class="tab active" data-tab="registro">Inicio</div>
-  <div class="tab" data-tab="premios">Premios</div>
-  <div class="tab" data-tab="partidos">Pronósticos</div>
-  <div class="tab" data-tab="posiciones">Posiciones</div>
-  <div class="tab" data-tab="grupos">Grupos</div>
+  <div class="tab tab-auth" data-tab="premios" style="display:none">Premios</div>
+  <div class="tab tab-auth" data-tab="partidos" style="display:none">Pronósticos</div>
+  <div class="tab tab-auth" data-tab="posiciones" style="display:none">Posiciones</div>
+  <div class="tab tab-auth" data-tab="grupos" style="display:none">Grupos</div>
   <div class="tab" data-tab="reglas">Reglas</div>
 </div>
 
@@ -266,23 +266,14 @@
       <span class="trofeo">⚽</span>
       <h1>Mundial<br><em>entre amigos</em></h1>
       <p>Pronostica los 104 partidos del Mundial 2026 y compite por los premios.</p>
-      <div class="precio-badge">Inscripción: $400 MXN</div>
     </div>
 
-    <div class="instrucciones-registro">
-    <div class="instruccion-step">
-      <div class="instruccion-num">1</div>
-      <div class="instruccion-texto"><strong>Regístrate</strong> — Llena el formulario con tus datos y elige tu campeón.</div>
+    <div style="text-align:center;padding:8px 16px 24px">
+      <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(230,51,41,0.08);border:1px solid rgba(230,51,41,0.3);border-radius:10px;padding:14px 24px;font-size:14px;color:var(--texto-muted);line-height:1.6">
+        <span style="font-size:22px">🔒</span>
+        <span>Las inscripciones están cerradas.<br>Si ya tienes cuenta, inicia sesión para pronosticar.</span>
+      </div>
     </div>
-    <div class="instruccion-step">
-      <div class="instruccion-num">2</div>
-      <div class="instruccion-texto"><strong>Haz tu pago</strong> — $400 MXN en efectivo o retiro sin tarjeta. Avísale al organizador cuando lo hayas hecho.</div>
-    </div>
-    <div class="instruccion-step">
-      <div class="instruccion-num">3</div>
-      <div class="instruccion-texto"><strong>Espera confirmación</strong> — En cuanto validemos tu pago, ya puedes entrar y pronosticar todos los partidos.</div>
-    </div>
-  </div>
 
   <div class="form-tabs">
       <div class="form-tab active" id="ftab-registro" onclick="mostrarFormTab('registro')">Soy nuevo</div>
@@ -505,7 +496,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function irATab(tab) {
-  if (tab === 'partidos' && !usuario) { toast('Primero inicia sesión', 'err'); return; }
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-' + tab));
   if (tab === 'partidos') { mostrarBannerCampeon(); cargarPartidos(); }
@@ -685,6 +675,7 @@ function cerrarSesion() {
   usuario = null;
   document.getElementById('userBadge').classList.remove('visible');
   document.getElementById('userMenu').classList.remove('visible');
+  document.querySelectorAll('.tab-auth').forEach(t => t.style.display = 'none');
   // Regresar a inicio
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'registro'));
   document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-registro'));
@@ -695,6 +686,7 @@ function mostrarUsuario() {
   document.getElementById('userBadge').classList.add('visible');
   document.getElementById('userAvatar').textContent = usuario.nombre.charAt(0).toUpperCase();
   document.getElementById('userName').textContent = usuario.nombre.split(' ')[0];
+  document.querySelectorAll('.tab-auth').forEach(t => t.style.display = '');
 }
 
 function mostrarBannerCampeon() {
