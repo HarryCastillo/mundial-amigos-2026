@@ -21,7 +21,7 @@
   .user-badge { display: none; align-items: center; gap: 10px; font-size: 13px; color: var(--texto-muted); cursor: pointer; position: relative; }
   .user-badge.visible { display: flex; }
   .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--verde); color: var(--negro); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
-  .user-menu { display: none; position: absolute; top: 44px; right: 0; background: var(--gris-oscuro); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 4px; min-width: 140px; z-index: 200; }
+  .user-menu { display: none; position: absolute; top: 44px; right: 0; background: var(--gris-oscuro); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 4px; min-width: 160px; z-index: 200; }
   .user-menu.visible { display: block; }
   .user-menu-item { padding: 10px 14px; font-size: 13px; color: var(--texto-muted); cursor: pointer; border-radius: 6px; transition: background 0.15s; }
   .user-menu-item:hover { background: var(--gris-medio); color: var(--rojo); }
@@ -42,7 +42,6 @@
   .registro-hero p { color: var(--texto-muted); font-size: 15px; margin-bottom: 24px; }
   .precio-badge { display: inline-block; background: var(--dorado); color: var(--negro); font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; padding: 8px 24px; border-radius: 6px; margin-bottom: 32px; }
 
-  /* ── Instrucciones de registro ── */
   .instrucciones-registro { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
   .instruccion-step { display: flex; align-items: flex-start; gap: 14px; }
   .instruccion-num { background: var(--verde); color: var(--negro); font-family: 'Bebas Neue', sans-serif; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
@@ -76,15 +75,6 @@
 
   .btn-link { background: none; border: none; color: var(--texto-muted); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; text-decoration: underline; margin-top: 14px; display: block; text-align: center; width: 100%; }
   .btn-link:hover { color: var(--verde); }
-
-  .pago-info { max-width: 440px; margin: 20px auto 0; background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 20px; }
-  .pago-info h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-muted); margin-bottom: 14px; }
-  .pago-metodo { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gris-borde); font-size: 14px; }
-  .pago-metodo:last-child { border-bottom: none; padding-bottom: 0; }
-  .pago-icon { font-size: 20px; min-width: 28px; }
-  .pago-metodo p { color: var(--texto-muted); font-size: 12px; margin-top: 2px; }
-  .pago-contacto { max-width: 440px; margin: 12px auto 0; text-align: center; font-size: 13px; color: var(--texto-muted); }
-  .pago-contacto a { color: var(--verde); text-decoration: none; }
 
   .recuperar-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 28px; max-width: 440px; margin: 0 auto; display: none; }
   .recuperar-card.visible { display: block; }
@@ -175,11 +165,9 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty-state { text-align: center; padding: 48px 24px; color: var(--texto-muted); font-size: 14px; }
 
-  /* ── Balón animado ── */
   .trofeo { display: inline-block; animation: balanceo 3s ease-in-out infinite; }
   @keyframes balanceo { 0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)} }
 
-  /* ── Stepper +/− ── */
   .stepper { display: flex; align-items: center; gap: 0; background: var(--gris-medio); border: 1px solid var(--gris-borde); border-radius: 8px; overflow: hidden; width: 100%; }
   .stepper-btn { background: transparent; border: none; color: var(--texto-muted); font-size: 22px; font-weight: 300; padding: 8px 12px; cursor: pointer; transition: background 0.15s, color 0.15s; user-select: none; line-height: 1; flex-shrink: 0; min-width: 40px; text-align: center; }
   .stepper-btn:hover { background: var(--gris-borde); color: var(--verde); }
@@ -189,7 +177,6 @@
   .stepper.guardado .stepper-num { color: var(--verde); }
   .stepper.disabled { opacity: 0.45; pointer-events: none; }
 
-  /* ── Progreso de pronósticos ── */
   .progreso-banner { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
   .progreso-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
   .progreso-label { font-size: 12px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -198,14 +185,11 @@
   .progreso-bar-wrap { background: var(--gris-medio); border-radius: 4px; height: 6px; overflow: hidden; }
   .progreso-bar { height: 100%; background: linear-gradient(90deg, var(--verde-dark), var(--verde)); border-radius: 4px; transition: width 0.4s ease; }
 
-  /* ── Separador abiertos/cerrados ── */
   .separador-estado { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-muted); }
   .separador-estado::before, .separador-estado::after { content:''; flex:1; height:1px; background:var(--gris-borde); }
 
-  /* ── Fase eliminatoria: nota tooltip ── */
   .fase-pendiente { font-size: 11px; color: var(--texto-muted); margin-top: 6px; font-style: italic; text-align: center; }
 
-  /* ── Standings públicos ── */
   .grupos-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
   .grupo-btn { padding: 5px 12px; border-radius: 16px; border: 1px solid var(--gris-borde); background: transparent; color: var(--texto-muted); font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
   .grupo-btn:hover { border-color: var(--verde); color: var(--verde); }
@@ -223,6 +207,13 @@
   .pub-pts { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--verde); }
   .grupos-nota { font-size: 11px; color: var(--texto-muted); margin-top: 8px; }
 
+  /* ── Modal cambiar password ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.visible { display: flex; }
+  .modal-box { background: var(--gris-oscuro); border: 1px solid var(--gris-borde); border-radius: 14px; padding: 28px; width: 100%; max-width: 400px; }
+  .modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+  .modal-close { float: right; background: none; border: none; color: var(--texto-muted); font-size: 20px; cursor: pointer; margin-top: -4px; }
+
   @media (max-width: 540px) {
     .premios-grid { grid-template-columns: 1fr; }
     .pos-header, .pos-row { grid-template-columns: 40px 1fr 80px; }
@@ -234,13 +225,6 @@
     .pub-row div:nth-child(2), .pub-row div:nth-child(3), .pub-row div:nth-child(4),
     .pub-row div:nth-child(6), .pub-row div:nth-child(7) { display: none; }
   }
-  /* ── Modal cambiar password ── */
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500; align-items:center; justify-content:center; padding:16px; }
-  .modal-overlay.visible { display:flex; }
-  .modal-box { background:var(--gris-oscuro); border:1px solid var(--gris-borde); border-radius:14px; padding:28px; width:100%; max-width:400px; }
-  .modal-box h3 { font-size:16px; font-weight:600; margin-bottom:20px; }
-  .modal-close { float:right; background:none; border:none; color:var(--texto-muted); font-size:20px; cursor:pointer; margin-top:-4px; }
-
 </style>
 </head>
 <body>
@@ -283,7 +267,7 @@
       </div>
     </div>
 
-  <div class="form-tabs">
+    <div class="form-tabs">
       <div class="form-tab active" id="ftab-registro" onclick="mostrarFormTab('registro')">Soy nuevo</div>
       <div class="form-tab" id="ftab-login" onclick="mostrarFormTab('login')">Ya tengo cuenta</div>
     </div>
@@ -336,18 +320,6 @@
       <button class="btn-link" onclick="ocultarRecuperar()">← Regresar al inicio de sesión</button>
     </div>
 
-    <div class="pago-info">
-      <h3>Cómo realizar tu pago</h3>
-      <div class="pago-metodo">
-        <div class="pago-icon">💵</div>
-        <div><strong>Efectivo</strong><p>Entrega directa al organizador.</p></div>
-      </div>
-      <div class="pago-metodo">
-        <div class="pago-icon">🏧</div>
-        <div><strong>Retiro sin tarjeta</strong><p>Genera una clave desde tu app bancaria por $400 MXN exactos y envíala al correo del organizador.</p></div>
-      </div>
-    </div>
-    <div class="pago-contacto">Envío de clave y dudas: <a href="mailto:predictor.mundial.2026@gmail.com">predictor.mundial.2026@gmail.com</a></div>
   </div>
 
   <!-- PREMIOS -->
@@ -463,7 +435,7 @@
 <script>
 const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
 let usuario = null, todosPartidos = [], faseActiva = "Todos";
-let totalInscritos = 0; // se actualiza desde posiciones
+let totalInscritos = 0;
 
 const CIERRE_INSCRIPCIONES = new Date("2026-06-11T00:00:00Z");
 
@@ -486,15 +458,6 @@ function mostrarEstadoInscripciones() {
       </div>`;
     ftabReg.style.display = 'none';
     mostrarFormTab('login');
-  } else {
-    const diff = CIERRE_INSCRIPCIONES.getTime() - Date.now();
-    const dias  = Math.floor(diff / 86400000);
-    const horas = Math.floor((diff % 86400000) / 3600000);
-    const mins  = Math.floor((diff % 3600000) / 60000);
-    const aviso = document.createElement('p');
-    aviso.style.cssText = 'text-align:center;font-size:12px;color:var(--texto-muted);margin-bottom:16px';
-    aviso.innerHTML = `⏳ Inscripciones cierran en <strong style="color:var(--dorado)">${dias}d ${horas}h ${mins}m</strong>`;
-    formReg.insertBefore(aviso, formReg.firstChild);
   }
 }
 
@@ -509,7 +472,6 @@ window.addEventListener('DOMContentLoaded', () => {
   mostrarEstadoInscripciones();
   cargarPosicionesBackground();
 
-  // Manejar unsubscribe por URL
   const params = new URLSearchParams(window.location.search);
   const unsubEmail = params.get('unsub');
   if (unsubEmail) procesarUnsub(unsubEmail);
@@ -683,7 +645,6 @@ function toggleUserMenu() {
   document.getElementById('userMenu').classList.toggle('visible');
 }
 
-// Cerrar menú al hacer clic fuera
 document.addEventListener('click', e => {
   if (!document.getElementById('userBadge')?.contains(e.target)) {
     document.getElementById('userMenu')?.classList.remove('visible');
@@ -696,7 +657,6 @@ function cerrarSesion() {
   document.getElementById('userBadge').classList.remove('visible');
   document.getElementById('userMenu').classList.remove('visible');
   document.querySelectorAll('.tab-auth').forEach(t => t.style.display = 'none');
-  // Regresar a inicio
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'registro'));
   document.querySelectorAll('.seccion').forEach(s => s.classList.toggle('visible', s.id === 'sec-registro'));
   toast('Sesión cerrada', 'ok');
@@ -707,6 +667,43 @@ function mostrarUsuario() {
   document.getElementById('userAvatar').textContent = usuario.nombre.charAt(0).toUpperCase();
   document.getElementById('userName').textContent = usuario.nombre.split(' ')[0];
   document.querySelectorAll('.tab-auth').forEach(t => t.style.display = '');
+}
+
+// ── CAMBIAR PASSWORD ──────────────────────────────────────────────────────────
+function mostrarCambiarPassword() {
+  document.getElementById('userMenu').classList.remove('visible');
+  document.getElementById('cpActual').value = '';
+  document.getElementById('cpNuevo').value = '';
+  document.getElementById('cpConfirmar').value = '';
+  document.getElementById('modalCambiarPassword').classList.add('visible');
+}
+
+function cerrarCambiarPassword() {
+  document.getElementById('modalCambiarPassword').classList.remove('visible');
+}
+
+function cambiarPassword() {
+  const actual    = document.getElementById('cpActual').value;
+  const nuevo     = document.getElementById('cpNuevo').value;
+  const confirmar = document.getElementById('cpConfirmar').value;
+  if (!actual || !nuevo || !confirmar) { toast('Completa todos los campos', 'err'); return; }
+  if (nuevo.length < 6) { toast('El nuevo password debe tener al menos 6 caracteres', 'err'); return; }
+  if (nuevo !== confirmar) { toast('Los passwords no coinciden', 'err'); return; }
+  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.', 'err'); return; }
+  const btn = document.getElementById('btnCambiarPassword');
+  btn.disabled = true; btn.textContent = 'Actualizando...';
+  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'cambiarPassword', token: usuario.token, passwordActual: actual, nuevoPassword: nuevo }) })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false; btn.textContent = 'Actualizar password';
+      if (data.ok) {
+        cerrarCambiarPassword();
+        toast('Password actualizado correctamente', 'ok');
+      } else {
+        toast(data.error || 'Error al actualizar', 'err');
+      }
+    })
+    .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Actualizar password'; });
 }
 
 function mostrarBannerCampeon() {
@@ -766,21 +763,16 @@ function guardarCampeon() {
 function procesarUnsub(email) {
   document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
   const main = document.querySelector('main');
   main.innerHTML = '';
-
   const container = document.createElement('div');
   container.style.cssText = 'text-align:center;padding:60px 24px;max-width:440px;margin:0 auto';
-
   const icon = document.createElement('div');
   icon.style.cssText = 'font-size:48px;margin-bottom:16px';
   icon.textContent = '📧';
-
   const title = document.createElement('h2');
   title.style.cssText = "font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:12px";
   title.textContent = 'Cancelar suscripción';
-
   const desc = document.createElement('p');
   desc.style.cssText = 'color:var(--texto-muted);font-size:14px;line-height:1.6;margin-bottom:24px';
   desc.textContent = '¿Confirmas que ya no quieres recibir correos del predictor Mundial entre amigos 2026?';
@@ -789,18 +781,15 @@ function procesarUnsub(email) {
   strong.textContent = email;
   desc.appendChild(document.createElement('br'));
   desc.appendChild(strong);
-
   const btnConfirmar = document.createElement('button');
   btnConfirmar.className = 'btn-primary';
   btnConfirmar.id = 'btnConfirmarUnsub';
   btnConfirmar.textContent = 'Sí, cancelar suscripción';
   btnConfirmar.addEventListener('click', () => confirmarUnsub(email));
-
   const btnCancelar = document.createElement('button');
   btnCancelar.className = 'btn-link';
   btnCancelar.textContent = 'No, mantener suscripción';
   btnCancelar.addEventListener('click', () => { window.location.href = 'https://harrycastillo.github.io/mundial-amigos-2026/'; });
-
   container.append(icon, title, desc, btnConfirmar, btnCancelar);
   main.appendChild(container);
 }
@@ -823,7 +812,6 @@ function confirmarUnsub(email) {
     .catch(() => toast('Error al procesar. Intenta de nuevo.', 'err'));
 }
 
-// ── PREMIOS con conteo real ────────────────────────────────────────────────────
 function actualizarPremios() {
   const n = parseInt(document.getElementById('sliderPart').value);
   document.getElementById('sliderVal').textContent = n;
@@ -846,14 +834,10 @@ function mostrarConteoInscritos(n) {
   if (slider) { slider.value = Math.max(5, n); actualizarPremios(); }
 }
 
-// ── POSICIONES (pública) ──────────────────────────────────────────────────────
 function cargarPosicionesBackground() {
   fetch(API + '?accion=posiciones')
     .then(r => r.json())
-    .then(data => {
-      const pos = data.posiciones || [];
-      mostrarConteoInscritos(pos.length);
-    })
+    .then(data => { mostrarConteoInscritos((data.posiciones || []).length); })
     .catch(() => {});
 }
 
@@ -865,16 +849,16 @@ function cargarPosiciones() {
       const pos = data.posiciones || [];
       mostrarConteoInscritos(pos.length);
       if (!pos.length) {
-        document.getElementById('listaPosiciones').innerHTML =
-          '<div class="empty-state">La tabla estará disponible cuando inicien los partidos.</div>';
+        document.getElementById('listaPosiciones').innerHTML = '<div class="empty-state">La tabla estará disponible cuando inicien los partidos.</div>';
         return;
       }
-      const cl = ['','top1','top2','top3'], co = ['','gold','silver','bronze'];
+      const co = ['','gold','silver','bronze'];
+      const clRow = (l) => l === 1 ? 'top1' : l === 2 ? 'top2' : l === 3 ? 'top3' : '';
       document.getElementById('listaPosiciones').innerHTML = `
         <div class="posiciones-tabla">
           <div class="pos-header"><span>#</span><span>Nombre</span><span>Campeón</span><span style="text-align:center">Exactos</span><span style="text-align:center">Correctos</span><span style="text-align:center">Pts</span></div>
           ${pos.map(p => `
-          <div class="pos-row ${cl[p.lugar]||''}">
+          <div class="pos-row ${clRow(p.lugar)}">
             <div class="pos-lugar ${co[p.lugar]||''}">${p.lugar}</div>
             <div class="pos-nombre">${p.nombre}</div>
             <div class="pos-campeon">${p.campeon||'—'}</div>
@@ -889,23 +873,15 @@ function cargarPosiciones() {
     });
 }
 
-// ── PARTIDOS ──────────────────────────────────────────────────────────────────
 function cargarPartidos() {
   document.getElementById('listaPartidos').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando partidos...</div>';
-
-  // Limpiar pronósticos locales para forzar recarga limpia desde Firestore
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('pron_'))
-    .forEach(k => localStorage.removeItem(k));
-
-  // Cargar partidos y pronósticos en paralelo
+  Object.keys(localStorage).filter(k => k.startsWith('pron_')).forEach(k => localStorage.removeItem(k));
   Promise.all([
     fetch(API + '?accion=partidos').then(r => r.json()),
     fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'misPronosticos', token: usuario.token }) }).then(r => r.json())
   ])
     .then(([dataPartidos, dataProns]) => {
       todosPartidos = dataPartidos.partidos || [];
-      // Sincronizar pronósticos de Firestore → localStorage
       if (dataProns.ok && dataProns.pronosticos) {
         Object.entries(dataProns.pronosticos).forEach(([partidoId, pron]) => {
           localStorage.setItem('pron_' + usuario.id + '_' + partidoId, JSON.stringify(pron));
@@ -929,9 +905,7 @@ function filtrar(fase) {
   renderPartidos();
 }
 
-// Fases de eliminación donde los equipos aún no se conocen
 const FASES_PENDIENTES = ['Dieciseisavos','Octavos de final','Cuartos de final','Semifinal','3er lugar','Final'];
-
 function esFasePendiente(fase) { return FASES_PENDIENTES.includes(fase); }
 
 function renderPartidos() {
@@ -941,27 +915,20 @@ function renderPartidos() {
     document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">No hay partidos en esta fase todavía.</div>';
     return;
   }
-
   const abiertos = lista.filter(p => p.abierto);
   const cerrados = lista.filter(p => !p.abierto);
-
-  // Calcular progreso
   const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
   const pronosticados = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + usuario.id + '_' + p.id)).length;
   actualizarProgreso(pronosticados, totalAbiertos);
-
   let html = '';
-
   if (abiertos.length) {
     if (cerrados.length) html += `<div class="separador-estado">⚡ Abiertos</div>`;
     html += abiertos.map(p => renderPartidoCard(p, ahora)).join('');
   }
-
   if (cerrados.length) {
     html += `<div class="separador-estado">🔒 Cerrados</div>`;
     html += cerrados.map(p => renderPartidoCard(p, ahora)).join('');
   }
-
   document.getElementById('listaPartidos').innerHTML = html;
 }
 
@@ -987,10 +954,6 @@ function renderPartidoCard(p, ahora) {
   const urgente = (p.cierreTimestamp - ahora) > 0 && (p.cierreTimestamp - ahora) < 7200000;
   const pron = JSON.parse(localStorage.getItem('pron_' + usuario.id + '_' + p.id) || 'null');
   const pendiente = esFasePendiente(p.fase);
-
-  const equipoLocalDisplay  = p.local;
-  const equipoVisitDisplay  = p.visitante;
-
   return `
   <div class="partido-card${pron ? ' pronosticado' : ''}${cerrado ? ' cerrado' : ''}" id="card-${p.id}">
     <div class="partido-meta">
@@ -998,9 +961,9 @@ function renderPartidoCard(p, ahora) {
       <span class="partido-cierre${urgente ? ' urgente' : ''}">${cerrado ? '🔒 Cerrado' : '⏱ Cierre: ' + p.fecha + ' ' + p.cierre + ' CDMX'}</span>
     </div>
     <div class="partido-equipos">
-      <div class="equipo-local"><div class="equipo-nombre">${equipoLocalDisplay}</div></div>
+      <div class="equipo-local"><div class="equipo-nombre">${p.local}</div></div>
       <div class="vs-badge">VS</div>
-      <div class="equipo-visitante"><div class="equipo-nombre">${equipoVisitDisplay}</div></div>
+      <div class="equipo-visitante"><div class="equipo-nombre">${p.visitante}</div></div>
     </div>
     ${pendiente && !pron ? `<p class="fase-pendiente">⏳ Los equipos se definirán al terminar la fase anterior</p>` : ''}
     <div class="marcador-inputs" style="margin-top:${pendiente && !pron ? '10px' : '0'}">
@@ -1025,8 +988,7 @@ function cambiarGoles(id, lado, delta) {
   const el = document.getElementById(elId);
   if (!el) return;
   const actual = parseInt(el.textContent) || 0;
-  const nuevo = Math.max(0, Math.min(30, actual + delta));
-  el.textContent = nuevo;
+  el.textContent = Math.max(0, Math.min(30, actual + delta));
 }
 
 function guardarPron(id) {
@@ -1042,13 +1004,9 @@ function guardarPron(id) {
       if (data.ok) {
         localStorage.setItem('pron_' + usuario.id + '_' + id, JSON.stringify({ golesLocal: gl, golesVisitante: gv }));
         document.getElementById('card-' + id).classList.add('pronosticado');
-        ['step-l-' + id, 'step-v-' + id].forEach(s => {
-          const el = document.getElementById(s);
-          if (el) el.classList.add('guardado');
-        });
+        ['step-l-' + id, 'step-v-' + id].forEach(s => { const el = document.getElementById(s); if (el) el.classList.add('guardado'); });
         btn.disabled = false; btn.classList.add('guardado'); btn.textContent = '✓ Guardado — clic para actualizar';
         toast(data.mensaje, 'ok');
-        // Actualizar progreso
         const totalAbiertos = todosPartidos.filter(p => p.abierto).length;
         const hechos = todosPartidos.filter(p => p.abierto && localStorage.getItem('pron_' + usuario.id + '_' + p.id)).length;
         actualizarProgreso(hechos, totalAbiertos);
@@ -1061,45 +1019,7 @@ function guardarPron(id) {
     .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Guardar pronóstico'; });
 }
 
-function mostrarCambiarPassword() {
-  document.getElementById('userMenu').classList.remove('visible');
-  document.getElementById('cpActual').value = '';
-  document.getElementById('cpNuevo').value = '';
-  document.getElementById('cpConfirmar').value = '';
-  document.getElementById('modalCambiarPassword').classList.add('visible');
-}
-
-function cerrarCambiarPassword() {
-  document.getElementById('modalCambiarPassword').classList.remove('visible');
-}
-
-function cambiarPassword() {
-  const actual    = document.getElementById('cpActual').value;
-  const nuevo     = document.getElementById('cpNuevo').value;
-  const confirmar = document.getElementById('cpConfirmar').value;
-
-  if (!actual || !nuevo || !confirmar) { toast('Completa todos los campos', 'err'); return; }
-  if (nuevo.length < 6) { toast('El nuevo password debe tener al menos 6 caracteres', 'err'); return; }
-  if (nuevo !== confirmar) { toast('Los passwords no coinciden', 'err'); return; }
-  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.', 'err'); return; }
-
-  const btn = document.getElementById('btnCambiarPassword');
-  btn.disabled = true; btn.textContent = 'Actualizando...';
-
-  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'cambiarPassword', token: usuario.token, passwordActual: actual, nuevoPassword: nuevo }) })
-    .then(r => r.json())
-    .then(data => {
-      btn.disabled = false; btn.textContent = 'Actualizar password';
-      if (data.ok) {
-        cerrarCambiarPassword();
-        toast('Password actualizado correctamente', 'ok');
-      } else {
-        toast(data.error || 'Error al actualizar', 'err');
-      }
-    })
-    .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Actualizar password'; });
-}
-
+function toast(msg, tipo) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast visible ' + (tipo || '');
   setTimeout(() => t.className = 'toast', 3500);
