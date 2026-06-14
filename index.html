@@ -234,6 +234,13 @@
     .pub-row div:nth-child(2), .pub-row div:nth-child(3), .pub-row div:nth-child(4),
     .pub-row div:nth-child(6), .pub-row div:nth-child(7) { display: none; }
   }
+  /* ── Modal cambiar password ── */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500; align-items:center; justify-content:center; padding:16px; }
+  .modal-overlay.visible { display:flex; }
+  .modal-box { background:var(--gris-oscuro); border:1px solid var(--gris-borde); border-radius:14px; padding:28px; width:100%; max-width:400px; }
+  .modal-box h3 { font-size:16px; font-weight:600; margin-bottom:20px; }
+  .modal-close { float:right; background:none; border:none; color:var(--texto-muted); font-size:20px; cursor:pointer; margin-top:-4px; }
+
 </style>
 </head>
 <body>
@@ -244,6 +251,7 @@
     <div class="user-avatar" id="userAvatar"></div>
     <span id="userName"></span>
     <div class="user-menu" id="userMenu">
+      <div class="user-menu-item" onclick="mostrarCambiarPassword()">🔑 Cambiar password</div>
       <div class="user-menu-item" onclick="cerrarSesion()">🚪 Cerrar sesión</div>
     </div>
   </div>
@@ -317,7 +325,7 @@
       <div class="campo"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com" autocomplete="email"></div>
       <div class="campo"><label>Password</label><input type="password" id="loginPassword" placeholder="Tu password" autocomplete="current-password"></div>
       <button class="btn-primary" id="btnLogin">Entrar →</button>
-      <button class="btn-link" onclick="mostrarRecuperar()">Olvidé mi password</button>
+      <button class="btn-link" onclick="mostrarRecuperar()" style="color:var(--dorado);margin-top:16px;font-size:14px">🔑 Olvidé mi password</button>
     </div>
 
     <div class="recuperar-card" id="form-recuperar">
@@ -328,7 +336,18 @@
       <button class="btn-link" onclick="ocultarRecuperar()">← Regresar al inicio de sesión</button>
     </div>
 
-
+    <div class="pago-info">
+      <h3>Cómo realizar tu pago</h3>
+      <div class="pago-metodo">
+        <div class="pago-icon">💵</div>
+        <div><strong>Efectivo</strong><p>Entrega directa al organizador.</p></div>
+      </div>
+      <div class="pago-metodo">
+        <div class="pago-icon">🏧</div>
+        <div><strong>Retiro sin tarjeta</strong><p>Genera una clave desde tu app bancaria por $400 MXN exactos y envíala al correo del organizador.</p></div>
+      </div>
+    </div>
+    <div class="pago-contacto">Envío de clave y dudas: <a href="mailto:predictor.mundial.2026@gmail.com">predictor.mundial.2026@gmail.com</a></div>
   </div>
 
   <!-- PREMIOS -->
@@ -428,6 +447,18 @@
 </main>
 
 <div class="toast" id="toast"></div>
+
+<!-- Modal cambiar password -->
+<div class="modal-overlay" id="modalCambiarPassword">
+  <div class="modal-box">
+    <button class="modal-close" onclick="cerrarCambiarPassword()">✕</button>
+    <h3>🔑 Cambiar password</h3>
+    <div class="campo"><label>Password actual</label><input type="password" id="cpActual" placeholder="Tu password actual" autocomplete="current-password"></div>
+    <div class="campo"><label>Nuevo password</label><input type="password" id="cpNuevo" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+    <div class="campo"><label>Confirmar nuevo password</label><input type="password" id="cpConfirmar" placeholder="Repite el nuevo password" autocomplete="new-password"></div>
+    <button class="btn-primary" id="btnCambiarPassword" onclick="cambiarPassword()">Actualizar password</button>
+  </div>
+</div>
 
 <script>
 const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
@@ -1030,7 +1061,45 @@ function guardarPron(id) {
     .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Guardar pronóstico'; });
 }
 
-function toast(msg, tipo) {
+function mostrarCambiarPassword() {
+  document.getElementById('userMenu').classList.remove('visible');
+  document.getElementById('cpActual').value = '';
+  document.getElementById('cpNuevo').value = '';
+  document.getElementById('cpConfirmar').value = '';
+  document.getElementById('modalCambiarPassword').classList.add('visible');
+}
+
+function cerrarCambiarPassword() {
+  document.getElementById('modalCambiarPassword').classList.remove('visible');
+}
+
+function cambiarPassword() {
+  const actual    = document.getElementById('cpActual').value;
+  const nuevo     = document.getElementById('cpNuevo').value;
+  const confirmar = document.getElementById('cpConfirmar').value;
+
+  if (!actual || !nuevo || !confirmar) { toast('Completa todos los campos', 'err'); return; }
+  if (nuevo.length < 6) { toast('El nuevo password debe tener al menos 6 caracteres', 'err'); return; }
+  if (nuevo !== confirmar) { toast('Los passwords no coinciden', 'err'); return; }
+  if (!usuario?.token) { toast('Sesión expirada. Vuelve a iniciar sesión.', 'err'); return; }
+
+  const btn = document.getElementById('btnCambiarPassword');
+  btn.disabled = true; btn.textContent = 'Actualizando...';
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'cambiarPassword', token: usuario.token, passwordActual: actual, nuevoPassword: nuevo }) })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false; btn.textContent = 'Actualizar password';
+      if (data.ok) {
+        cerrarCambiarPassword();
+        toast('Password actualizado correctamente', 'ok');
+      } else {
+        toast(data.error || 'Error al actualizar', 'err');
+      }
+    })
+    .catch(() => { toast('Error de conexión', 'err'); btn.disabled = false; btn.textContent = 'Actualizar password'; });
+}
+
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast visible ' + (tipo || '');
   setTimeout(() => t.className = 'toast', 3500);
