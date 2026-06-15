@@ -130,6 +130,7 @@
   .btn-guardar:hover { background: var(--verde); color: var(--negro); }
   .btn-guardar.guardado { background: var(--verde); color: var(--negro); }
 
+  .ultimo-partido-banner { font-size: 12px; color: var(--texto-muted); margin-bottom: 10px; padding: 6px 4px; }
   .posiciones-tabla { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; overflow: hidden; }
   .pos-header { display: grid; grid-template-columns: 48px 1fr 130px 70px 70px 80px; padding: 12px 16px; background: var(--gris-medio); font-size: 11px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .pos-row { display: grid; grid-template-columns: 48px 1fr 130px 70px 70px 80px; padding: 14px 16px; border-top: 1px solid var(--gris-borde); align-items: center; transition: background 0.15s; }
@@ -843,9 +844,12 @@ function cargarPosicionesBackground() {
 
 function cargarPosiciones() {
   document.getElementById('listaPosiciones').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando posiciones...</div>';
-  fetch(API + '?accion=posiciones')
-    .then(r => r.json())
-    .then(data => {
+
+  const promPosiciones = fetch(API + '?accion=posiciones').then(r => r.json());
+  const promUltimo = fetch(API + '?accion=ultimoPartidoTerminado').then(r => r.json()).catch(() => ({}));
+
+  Promise.all([promPosiciones, promUltimo])
+    .then(([data, dataUltimo]) => {
       const pos = data.posiciones || [];
       mostrarConteoInscritos(pos.length);
       if (!pos.length) {
@@ -854,7 +858,15 @@ function cargarPosiciones() {
       }
       const co = ['','gold','silver','bronze'];
       const clRow = (l) => l === 1 ? 'top1' : l === 2 ? 'top2' : l === 3 ? 'top3' : '';
+
+      let bannerUltimo = '';
+      if (dataUltimo && dataUltimo.ok && dataUltimo.partido) {
+        const u = dataUltimo.partido;
+        bannerUltimo = `<div class="ultimo-partido-banner">Actualizado hasta: <strong>${u.local} ${u.golesLocal} – ${u.golesVisitante} ${u.visitante}</strong></div>`;
+      }
+
       document.getElementById('listaPosiciones').innerHTML = `
+        ${bannerUltimo}
         <div class="posiciones-tabla">
           <div class="pos-header"><span>#</span><span>Nombre</span><span>Campeón</span><span style="text-align:center">Exactos</span><span style="text-align:center">Correctos</span><span style="text-align:center">Pts</span></div>
           ${pos.map(p => `
