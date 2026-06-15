@@ -12,7 +12,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--negro); color: var(--texto); font-family: system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 14px; padding: 28px; width: 100%; max-width: 380px; }
+  .card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 14px; padding: 28px; width: 100%; max-width: 420px; }
   h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
   .sub { font-size: 12px; color: var(--texto-muted); margin-bottom: 24px; }
   .campo { margin-bottom: 14px; }
@@ -31,6 +31,20 @@
   #secLogin { display: block; }
   #secOps { display: none; }
   .badge { display: inline-block; background: rgba(0,192,107,0.15); border: 1px solid rgba(0,192,107,0.3); color: var(--verde); font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-bottom: 20px; }
+
+  /* Lista de participantes */
+  .buscador { margin-bottom: 10px; }
+  .lista-participantes { max-height: 260px; overflow-y: auto; border: 1px solid var(--gris-borde); border-radius: 8px; margin-bottom: 14px; }
+  .part-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--gris-borde); transition: background 0.15s; font-size: 14px; }
+  .part-item:last-child { border-bottom: none; }
+  .part-item:hover { background: var(--gris-medio); }
+  .part-item.seleccionado { background: rgba(0,192,107,0.12); border-left: 3px solid var(--verde); }
+  .part-nombre { font-weight: 500; }
+  .part-email { font-size: 11px; color: var(--texto-muted); margin-top: 2px; }
+  .lista-vacia { padding: 16px; text-align: center; color: var(--texto-muted); font-size: 13px; }
+  .spinner-mini { text-align: center; padding: 20px; color: var(--texto-muted); font-size: 13px; }
+
+  .seleccionado-label { font-size: 12px; color: var(--verde); margin-bottom: 10px; padding: 8px 12px; background: rgba(0,192,107,0.08); border-radius: 6px; display: none; }
 </style>
 </head>
 <body>
@@ -52,16 +66,28 @@
   <div id="secOps">
     <div class="badge">✓ Autenticado</div>
     <h2>Reset de password</h2>
-    <p class="sub" style="margin-bottom:20px">Busca al participante por correo y asígnale un nuevo password.</p>
+    <p class="sub" style="margin-bottom:16px">Selecciona un participante y asígnale un nuevo password.</p>
 
-    <div class="campo">
-      <label>Correo del participante</label>
-      <input type="email" id="opEmail" placeholder="correo@ejemplo.com" autocomplete="off">
+    <!-- Buscador -->
+    <div class="campo buscador">
+      <label>Buscar participante</label>
+      <input type="text" id="inputBuscar" placeholder="Nombre..." oninput="filtrarLista()">
     </div>
+
+    <!-- Lista -->
+    <div class="lista-participantes" id="listaParticipantes">
+      <div class="spinner-mini">Cargando...</div>
+    </div>
+
+    <!-- Participante seleccionado -->
+    <div class="seleccionado-label" id="seleccionadoLabel"></div>
+
+    <!-- Nuevo password -->
     <div class="campo">
       <label>Nuevo password</label>
       <input type="text" id="opPassword" placeholder="Mínimo 6 caracteres" autocomplete="off">
     </div>
+
     <button class="btn" id="btnReset" onclick="resetPassword()">Resetear password</button>
     <button class="btn btn-secondary" onclick="cerrarSesion()">Cerrar sesión</button>
     <div class="msg" id="msgOps"></div>
@@ -71,17 +97,12 @@
 
 <script>
 const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
-
-// Hash SHA-256 con sal para verificación local (primera barrera)
-// El token real vive en Firebase Secrets (segunda barrera, la real)
 const SAL = "mqx26-ops-v1";
 const HASH_ESPERADO = "5fbd9ba96860fed482d8820aebcb58df775ff23f078c3d72bcf1a4851e9588ae";
-// ↑ Este hash es un placeholder — reemplázalo con el hash real de tu token
-// Para generar: abre la consola del navegador y ejecuta:
-// async function h(s){const b=new TextEncoder().encode(s);const d=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(d)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-// h("TU_TOKEN_AQUI" + "mqx26-ops-v1").then(console.log)
 
 let tokenAutenticado = null;
+let participantes = [];
+let emailSeleccionado = null;
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -100,14 +121,73 @@ async function autenticar() {
   tokenAutenticado = token;
   document.getElementById('secLogin').style.display = 'none';
   document.getElementById('secOps').style.display = 'block';
+  cargarParticipantes();
+}
+
+async function cargarParticipantes() {
+  try {
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'adminParticipantes', adminSecret: tokenAutenticado })
+    });
+    const data = await r.json();
+    if (data.ok) {
+      participantes = data.participantes.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+      renderLista(participantes);
+    } else {
+      document.getElementById('listaParticipantes').innerHTML = '<div class="lista-vacia">Error al cargar</div>';
+    }
+  } catch {
+    document.getElementById('listaParticipantes').innerHTML = '<div class="lista-vacia">Error de conexión</div>';
+  }
+}
+
+function renderLista(lista) {
+  if (!lista.length) {
+    document.getElementById('listaParticipantes').innerHTML = '<div class="lista-vacia">Sin resultados</div>';
+    return;
+  }
+  document.getElementById('listaParticipantes').innerHTML = lista.map(p => `
+    <div class="part-item" id="item-${p.email}" onclick="seleccionar('${p.email}', '${p.nombre.replace(/'/g, "\\'")}')">
+      <div class="part-nombre">${p.nombre}</div>
+      <div class="part-email">${p.email}</div>
+    </div>
+  `).join('');
+}
+
+function filtrarLista() {
+  const q = document.getElementById('inputBuscar').value.toLowerCase();
+  const filtrados = participantes.filter(p => p.nombre.toLowerCase().includes(q) || p.email.toLowerCase().includes(q));
+  renderLista(filtrados);
+  // Mantener selección visual si sigue en lista
+  if (emailSeleccionado) {
+    const el = document.getElementById('item-' + emailSeleccionado);
+    if (el) el.classList.add('seleccionado');
+  }
+}
+
+function seleccionar(email, nombre) {
+  emailSeleccionado = email;
+  // Quitar selección anterior
+  document.querySelectorAll('.part-item').forEach(el => el.classList.remove('seleccionado'));
+  const el = document.getElementById('item-' + email);
+  if (el) el.classList.add('seleccionado');
+  // Mostrar label
+  const lbl = document.getElementById('seleccionadoLabel');
+  lbl.textContent = '👤 ' + nombre;
+  lbl.style.display = 'block';
+  // Limpiar msg y focus en password
+  document.getElementById('msgOps').className = 'msg';
+  document.getElementById('opPassword').focus();
 }
 
 async function resetPassword() {
-  const email = document.getElementById('opEmail').value.trim();
+  if (!emailSeleccionado) return mostrarMsg('msgOps', 'Selecciona un participante', 'err');
   const password = document.getElementById('opPassword').value.trim();
   const btn = document.getElementById('btnReset');
 
-  if (!email || !password) return mostrarMsg('msgOps', 'Completa ambos campos', 'err');
+  if (!password) return mostrarMsg('msgOps', 'Ingresa el nuevo password', 'err');
   if (password.length < 6) return mostrarMsg('msgOps', 'Password mínimo 6 caracteres', 'err');
 
   btn.disabled = true; btn.textContent = 'Procesando...';
@@ -115,13 +195,16 @@ async function resetPassword() {
   try {
     const r = await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ accion: 'adminOpsReset', opsToken: tokenAutenticado, email, nuevoPassword: password })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'adminOpsReset', opsToken: tokenAutenticado, email: emailSeleccionado, nuevoPassword: password })
     });
     const data = await r.json();
     if (data.ok) {
       mostrarMsg('msgOps', `✓ Password de ${data.nombre} actualizado`, 'ok');
-      document.getElementById('opEmail').value = '';
       document.getElementById('opPassword').value = '';
+      emailSeleccionado = null;
+      document.getElementById('seleccionadoLabel').style.display = 'none';
+      document.querySelectorAll('.part-item').forEach(el => el.classList.remove('seleccionado'));
     } else {
       mostrarMsg('msgOps', data.error || 'Error desconocido', 'err');
     }
@@ -134,6 +217,8 @@ async function resetPassword() {
 
 function cerrarSesion() {
   tokenAutenticado = null;
+  participantes = [];
+  emailSeleccionado = null;
   document.getElementById('inputToken').value = '';
   document.getElementById('secOps').style.display = 'none';
   document.getElementById('secLogin').style.display = 'block';
@@ -147,7 +232,6 @@ function mostrarMsg(id, texto, tipo) {
   el.className = 'msg ' + tipo;
 }
 
-// Enter en el campo de token
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     if (document.getElementById('secLogin').style.display !== 'none') autenticar();
