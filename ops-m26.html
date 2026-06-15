@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚙️</title>
+<style>
+  :root {
+    --verde: #00c06b; --rojo: #e63329; --dorado: #f5c518;
+    --negro: #0d0d0d; --gris-oscuro: #1a1a1a; --gris-medio: #2a2a2a;
+    --gris-borde: #333; --texto: #f0f0f0; --texto-muted: #888; --card-bg: #161616;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--negro); color: var(--texto); font-family: system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 14px; padding: 28px; width: 100%; max-width: 380px; }
+  h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .sub { font-size: 12px; color: var(--texto-muted); margin-bottom: 24px; }
+  .campo { margin-bottom: 14px; }
+  label { display: block; font-size: 11px; color: var(--texto-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  input { width: 100%; background: var(--gris-medio); border: 1px solid var(--gris-borde); border-radius: 8px; padding: 11px 14px; color: var(--texto); font-size: 15px; outline: none; transition: border-color 0.2s; font-family: inherit; }
+  input:focus { border-color: var(--verde); }
+  .btn { width: 100%; background: var(--verde); color: var(--negro); border: none; border-radius: 8px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 4px; font-family: inherit; }
+  .btn:hover { background: #009952; }
+  .btn:disabled { background: #444; color: #777; cursor: not-allowed; }
+  .btn-secondary { background: transparent; border: 1px solid var(--gris-borde); color: var(--texto-muted); margin-top: 10px; }
+  .btn-secondary:hover { border-color: var(--verde); color: var(--verde); background: transparent; }
+  .msg { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 14px; display: none; }
+  .msg.ok { background: rgba(0,192,107,0.1); border: 1px solid rgba(0,192,107,0.4); color: var(--verde); display: block; }
+  .msg.err { background: rgba(230,51,41,0.1); border: 1px solid rgba(230,51,41,0.4); color: var(--rojo); display: block; }
+  .divider { border: none; border-top: 1px solid var(--gris-borde); margin: 24px 0; }
+  #secLogin { display: block; }
+  #secOps { display: none; }
+  .badge { display: inline-block; background: rgba(0,192,107,0.15); border: 1px solid rgba(0,192,107,0.3); color: var(--verde); font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Sección login -->
+  <div id="secLogin">
+    <h2>⚙️ Operaciones</h2>
+    <p class="sub">Panel de administración</p>
+    <div class="campo">
+      <label>Token de acceso</label>
+      <input type="password" id="inputToken" placeholder="••••••••••••" autocomplete="off">
+    </div>
+    <button class="btn" onclick="autenticar()">Entrar</button>
+    <div class="msg" id="msgLogin"></div>
+  </div>
+
+  <!-- Sección operaciones -->
+  <div id="secOps">
+    <div class="badge">✓ Autenticado</div>
+    <h2>Reset de password</h2>
+    <p class="sub" style="margin-bottom:20px">Busca al participante por correo y asígnale un nuevo password.</p>
+
+    <div class="campo">
+      <label>Correo del participante</label>
+      <input type="email" id="opEmail" placeholder="correo@ejemplo.com" autocomplete="off">
+    </div>
+    <div class="campo">
+      <label>Nuevo password</label>
+      <input type="text" id="opPassword" placeholder="Mínimo 6 caracteres" autocomplete="off">
+    </div>
+    <button class="btn" id="btnReset" onclick="resetPassword()">Resetear password</button>
+    <button class="btn btn-secondary" onclick="cerrarSesion()">Cerrar sesión</button>
+    <div class="msg" id="msgOps"></div>
+  </div>
+
+</div>
+
+<script>
+const API = "https://us-central1-mundial-2026-amigos.cloudfunctions.net/api";
+
+// Hash SHA-256 con sal para verificación local (primera barrera)
+// El token real vive en Firebase Secrets (segunda barrera, la real)
+const SAL = "mqx26-ops-v1";
+const HASH_ESPERADO = "5fbd9ba96860fed482d8820aebcb58df775ff23f078c3d72bcf1a4851e9588ae";
+// ↑ Este hash es un placeholder — reemplázalo con el hash real de tu token
+// Para generar: abre la consola del navegador y ejecuta:
+// async function h(s){const b=new TextEncoder().encode(s);const d=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(d)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+// h("TU_TOKEN_AQUI" + "mqx26-ops-v1").then(console.log)
+
+let tokenAutenticado = null;
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+async function autenticar() {
+  const token = document.getElementById('inputToken').value.trim();
+  if (!token) return mostrarMsg('msgLogin', 'Ingresa el token', 'err');
+
+  const hash = await sha256(token + SAL);
+  if (hash !== HASH_ESPERADO) {
+    return mostrarMsg('msgLogin', 'Token incorrecto', 'err');
+  }
+
+  tokenAutenticado = token;
+  document.getElementById('secLogin').style.display = 'none';
+  document.getElementById('secOps').style.display = 'block';
+}
+
+async function resetPassword() {
+  const email = document.getElementById('opEmail').value.trim();
+  const password = document.getElementById('opPassword').value.trim();
+  const btn = document.getElementById('btnReset');
+
+  if (!email || !password) return mostrarMsg('msgOps', 'Completa ambos campos', 'err');
+  if (password.length < 6) return mostrarMsg('msgOps', 'Password mínimo 6 caracteres', 'err');
+
+  btn.disabled = true; btn.textContent = 'Procesando...';
+
+  try {
+    const r = await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ accion: 'adminOpsReset', opsToken: tokenAutenticado, email, nuevoPassword: password })
+    });
+    const data = await r.json();
+    if (data.ok) {
+      mostrarMsg('msgOps', `✓ Password de ${data.nombre} actualizado`, 'ok');
+      document.getElementById('opEmail').value = '';
+      document.getElementById('opPassword').value = '';
+    } else {
+      mostrarMsg('msgOps', data.error || 'Error desconocido', 'err');
+    }
+  } catch {
+    mostrarMsg('msgOps', 'Error de conexión', 'err');
+  }
+
+  btn.disabled = false; btn.textContent = 'Resetear password';
+}
+
+function cerrarSesion() {
+  tokenAutenticado = null;
+  document.getElementById('inputToken').value = '';
+  document.getElementById('secOps').style.display = 'none';
+  document.getElementById('secLogin').style.display = 'block';
+  document.getElementById('msgLogin').className = 'msg';
+  document.getElementById('msgOps').className = 'msg';
+}
+
+function mostrarMsg(id, texto, tipo) {
+  const el = document.getElementById(id);
+  el.textContent = texto;
+  el.className = 'msg ' + tipo;
+}
+
+// Enter en el campo de token
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('secLogin').style.display !== 'none') autenticar();
+  }
+});
+</script>
+</body>
+</html>
