@@ -30,6 +30,10 @@
   .tab { padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--texto-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
   .tab:hover { color: var(--texto); }
   .tab.active { color: var(--verde); border-bottom-color: var(--verde); }
+  @media (max-width: 540px) {
+    .tabs { flex-wrap: wrap; overflow-x: visible; padding: 0; }
+    .tab { flex: 1 0 auto; text-align: center; padding: 10px 12px; font-size: 12px; border-bottom: 2px solid transparent; }
+  }
 
   main { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
   .seccion { display: none; }
@@ -906,7 +910,7 @@ function cargarPartidos() {
 }
 
 function construirFiltros() {
-  const fases = ['Todos', ...new Set(todosPartidos.map(p => p.fase)), 'Cerrados'];
+  const fases = ['Todos', ...new Set(todosPartidos.map(p => p.fase))];
   document.getElementById('filtros').innerHTML = fases.map(f =>
     `<button class="filtro-btn${f === faseActiva ? ' active' : ''}" onclick="filtrar('${f}')">${f}</button>`).join('');
 }
@@ -922,18 +926,6 @@ function esFasePendiente(fase) { return FASES_PENDIENTES.includes(fase); }
 
 function renderPartidos() {
   const ahora = Date.now();
-
-  if (faseActiva === 'Cerrados') {
-    const cerrados = [...todosPartidos].filter(p => !p.abierto).reverse();
-    if (!cerrados.length) {
-      document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Aún no hay partidos cerrados.</div>';
-      return;
-    }
-    actualizarProgreso(0, 0);
-    document.getElementById('listaPartidos').innerHTML = cerrados.map(p => renderPartidoCard(p, ahora)).join('');
-    return;
-  }
-
   const lista = faseActiva === 'Todos' ? todosPartidos : todosPartidos.filter(p => p.fase === faseActiva);
   if (!lista.length) {
     document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">No hay partidos en esta fase todavía.</div>';
