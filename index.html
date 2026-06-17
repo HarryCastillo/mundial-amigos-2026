@@ -146,31 +146,6 @@
   .pos-campeon { font-size: 12px; color: var(--texto-muted); }
   .pos-num { text-align: center; font-size: 14px; color: var(--texto-muted); }
   .pos-total { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--verde); }
-  .pos-row { cursor: pointer; }
-  .pos-row:hover .pos-nombre { text-decoration: underline; text-decoration-color: var(--verde); }
-
-  /* Modal desglose */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
-  .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 16px; width: 100%; max-width: 680px; margin: auto; padding: 24px; position: relative; }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--texto-muted); font-size: 22px; cursor: pointer; line-height: 1; }
-  .modal-header { margin-bottom: 18px; }
-  .modal-nombre { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--texto); }
-  .modal-stats { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
-  .modal-stat { background: var(--gris-oscuro); border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--texto-muted); }
-  .modal-stat strong { color: var(--verde); font-size: 18px; display: block; font-family: 'Bebas Neue', sans-serif; }
-  .desglose-tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .desglose-tabla th { text-align: left; padding: 8px 10px; color: var(--texto-muted); font-weight: 500; border-bottom: 1px solid var(--gris-borde); }
-  .desglose-tabla td { padding: 9px 10px; border-bottom: 1px solid var(--gris-borde); color: var(--texto); }
-  .desglose-tabla tr:last-child td { border-bottom: none; }
-  .desglose-tabla tr.exacto td { background: rgba(245,197,24,0.06); }
-  .desglose-tabla tr.correcto td { background: rgba(72,199,142,0.05); }
-  .tag-exacto { background: rgba(245,197,24,0.2); color: #f5c518; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
-  .tag-correcto { background: rgba(72,199,142,0.2); color: #48c78e; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
-  .tag-fallo { color: var(--texto-muted); font-size: 11px; }
-  .tag-sinpron { color: var(--texto-muted); font-style: italic; font-size: 12px; }
-  .desglose-pts { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--verde); }
-  .desglose-pts.cero { color: var(--texto-muted); font-size: 14px; }
 
   .reglas-card { background: var(--card-bg); border: 1px solid var(--gris-borde); border-radius: 12px; padding: 28px; margin-bottom: 16px; }
   .reglas-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--verde); margin-bottom: 16px; }
@@ -895,7 +870,7 @@ function cargarPosiciones() {
         <div class="posiciones-tabla">
           <div class="pos-header"><span>#</span><span>Nombre</span><span>Campeón</span><span style="text-align:center">Exactos</span><span style="text-align:center">Correctos</span><span style="text-align:center">Pts</span></div>
           ${pos.map(p => `
-          <div class="pos-row ${clRow(p.lugar)}" onclick="abrirDesglose('${p.id}')" title="Ver pronósticos de ${p.nombre}">
+          <div class="pos-row ${clRow(p.lugar)}">
             <div class="pos-lugar ${co[p.lugar]||''}">${p.lugar}</div>
             <div class="pos-nombre">${p.nombre}</div>
             <div class="pos-campeon">${p.campeon||'—'}</div>
@@ -931,7 +906,7 @@ function cargarPartidos() {
 }
 
 function construirFiltros() {
-  const fases = ['Todos', ...new Set(todosPartidos.map(p => p.fase))];
+  const fases = ['Todos', ...new Set(todosPartidos.map(p => p.fase)), 'Cerrados'];
   document.getElementById('filtros').innerHTML = fases.map(f =>
     `<button class="filtro-btn${f === faseActiva ? ' active' : ''}" onclick="filtrar('${f}')">${f}</button>`).join('');
 }
@@ -947,6 +922,18 @@ function esFasePendiente(fase) { return FASES_PENDIENTES.includes(fase); }
 
 function renderPartidos() {
   const ahora = Date.now();
+
+  if (faseActiva === 'Cerrados') {
+    const cerrados = [...todosPartidos].filter(p => !p.abierto).reverse();
+    if (!cerrados.length) {
+      document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">Aún no hay partidos cerrados.</div>';
+      return;
+    }
+    actualizarProgreso(0, 0);
+    document.getElementById('listaPartidos').innerHTML = cerrados.map(p => renderPartidoCard(p, ahora)).join('');
+    return;
+  }
+
   const lista = faseActiva === 'Todos' ? todosPartidos : todosPartidos.filter(p => p.fase === faseActiva);
   if (!lista.length) {
     document.getElementById('listaPartidos').innerHTML = '<div class="empty-state">No hay partidos en esta fase todavía.</div>';
@@ -1061,93 +1048,6 @@ function toast(msg, tipo) {
   t.textContent = msg; t.className = 'toast visible ' + (tipo || '');
   setTimeout(() => t.className = 'toast', 3500);
 }
-
-// ── DESGLOSE PARTICIPANTE ─────────────────────────────────────────────────────
-function abrirDesglose(participanteId) {
-  if (!usuario?.token) return;
-  const overlay = document.getElementById('modalDesglose');
-  const contenido = document.getElementById('desgloseContenido');
-  contenido.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accion: 'desgloseParticipante', token: usuario.token, participanteId })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.ok) { contenido.innerHTML = `<p style="color:var(--rojo)">${data.error}</p>`; return; }
-
-    const { nombre, puntaje, exactos, correctos, campeon, filas } = data;
-    const corr = (correctos || 0) - (exactos || 0);
-
-    let html = `
-      <div class="modal-header">
-        <div class="modal-nombre">${nombre}</div>
-        <div class="modal-stats">
-          <div class="modal-stat"><strong>${puntaje || 0}</strong>Puntos</div>
-          <div class="modal-stat"><strong>${exactos || 0}</strong>Exactos</div>
-          <div class="modal-stat"><strong>${corr}</strong>Correctos</div>
-          <div class="modal-stat"><strong>${campeon}</strong>Campeón</div>
-        </div>
-      </div>`;
-
-    if (!filas.length) {
-      html += '<p style="color:var(--texto-muted);font-size:14px;margin-top:8px">Aún no hay partidos terminados.</p>';
-    } else {
-      html += `<table class="desglose-tabla">
-        <thead><tr>
-          <th>Partido</th>
-          <th style="text-align:center">Real</th>
-          <th style="text-align:center">Pronóstico</th>
-          <th style="text-align:center">Resultado</th>
-          <th style="text-align:center">Pts</th>
-        </tr></thead><tbody>`;
-
-      filas.forEach(f => {
-        const rowClass = f.exacto ? 'exacto' : f.correcto ? 'correcto' : '';
-        const tag = f.sinPron
-          ? '<span class="tag-sinpron">sin pronóstico</span>'
-          : f.exacto
-            ? '<span class="tag-exacto">⭐ Exacto</span>'
-            : f.correcto
-              ? '<span class="tag-correcto">✓ Correcto</span>'
-              : '<span class="tag-fallo">—</span>';
-        const pts = f.sinPron || f.puntos === 0
-          ? '<span class="desglose-pts cero">—</span>'
-          : `<span class="desglose-pts">+${f.puntos}</span>`;
-        const faseTxt = f.grupo ? `${f.fase} · ${f.grupo}` : f.fase;
-        html += `<tr class="${rowClass}">
-          <td><div style="font-weight:500">${f.partido}</div><div style="font-size:11px;color:var(--texto-muted)">${faseTxt}</div></td>
-          <td style="text-align:center;font-family:'DM Mono',monospace">${f.resultado}</td>
-          <td style="text-align:center;font-family:'DM Mono',monospace">${f.pronostico}</td>
-          <td style="text-align:center">${tag}</td>
-          <td style="text-align:center">${pts}</td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-    }
-
-    contenido.innerHTML = html;
-  })
-  .catch(() => { contenido.innerHTML = '<p style="color:var(--rojo)">Error al cargar. Intenta de nuevo.</p>'; });
-}
-
-function cerrarDesglose() {
-  document.getElementById('modalDesglose').classList.remove('open');
-  document.body.style.overflow = '';
-}
 </script>
-
-<!-- Modal desglose participante -->
-<div class="modal-overlay" id="modalDesglose" onclick="if(event.target===this)cerrarDesglose()">
-  <div class="modal-box">
-    <button class="modal-close" onclick="cerrarDesglose()">✕</button>
-    <div id="desgloseContenido"></div>
-  </div>
-</div>
-
 </body>
 </html>
