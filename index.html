@@ -421,7 +421,7 @@
       <div class="regla-item"><span>Multiplicador tercer lugar</span><span class="regla-pts">×4</span></div>
       <div class="regla-item"><span>Multiplicador final</span><span class="regla-pts">×5</span></div>
       <div class="regla-item"><span>🏆 Campeón elegido correctamente al registrarse</span><span class="regla-pts">+10 pts</span></div>
-      <p style="margin-top:14px">En caso de empate al término del torneo, el desempate se resolverá considerando: mayor número de marcadores exactos, luego mayor número de resultados correctos y, de persistir el empate, el criterio lo definirá el comité organizador.</p>
+      <p style="margin-top:14px">En caso de empate al término del torneo, el desempate se resolverá en cascada: 1) mayor número de marcadores exactos, 2) mayor número de resultados correctos. Si el empate persiste tras ambos criterios, los participantes empatados comparten el premio correspondiente a ese lugar en partes iguales, sin afectar los premios de los demás lugares. Por ejemplo, dos personas empatadas en 2° lugar se reparten el premio al 2° lugar entre ellas, y quien quedó en 3° lugar conserva íntegramente su premio.</p>
     </div>
     <div class="reglas-card">
       <h3>Premios y distribución</h3>
@@ -1122,7 +1122,7 @@ function abrirDesglose(participanteId) {
           <th style="text-align:center">Pts</th>
         </tr></thead><tbody>`;
 
-      filas.forEach(f => {
+      [... filas].reverse().forEach(f => {
         const rowClass = f.exacto ? 'exacto' : f.correcto ? 'correcto' : '';
         const tag = f.sinPron
           ? '<span class="tag-sinpron">sin pronóstico</span>'
