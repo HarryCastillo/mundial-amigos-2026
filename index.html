@@ -232,7 +232,7 @@
   .pub-row:hover { background: rgba(255,255,255,0.02); }
   .pub-row.clasificado { background: rgba(0,192,107,0.05); }
   .pub-row.eliminado { background: rgba(230,51,41,0.05); }
-  .pub-row.eliminado .pub-equipo { color: var(--texto-muted); text-decoration: line-through; }
+  .pub-row.eliminado .pub-equipo { color: var(--texto-muted); }
   .pub-equipo { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
   .pub-asterisco { color: var(--verde); font-size: 12px; font-weight: 700; }
   .pub-equis { color: var(--rojo); font-size: 12px; font-weight: 700; }
@@ -543,14 +543,18 @@ function construirFiltrosGrupos() {
   const grupos = Object.keys(standingsData).sort();
   const filtros = document.getElementById('gruposFiltros');
   if (!grupos.length) { filtros.innerHTML = ''; return; }
-  filtros.innerHTML = ['Todos', ...grupos].map(g =>
-    `<button class="grupo-btn${g === grupoActivoFiltro ? ' active' : ''}" onclick="filtrarGrupo('${g}')">${g === 'Todos' ? 'Todos' : 'Grupo ' + g}</button>`
-  ).join('');
+  const opciones = ['Todos', ...grupos];
+  if (tercerosData.length) opciones.push('Terceros');
+  filtros.innerHTML = opciones.map(g => {
+    const label = g === 'Todos' ? 'Todos' : g === 'Terceros' ? 'Terceros' : 'Grupo ' + g;
+    return `<button class="grupo-btn${g === grupoActivoFiltro ? ' active' : ''}" onclick="filtrarGrupo('${g}')">${label}</button>`;
+  }).join('');
 }
 
 function filtrarGrupo(g) {
   grupoActivoFiltro = g;
-  document.querySelectorAll('.grupo-btn').forEach(b => b.classList.toggle('active', b.textContent === (g === 'Todos' ? 'Todos' : 'Grupo ' + g)));
+  const label = g === 'Todos' ? 'Todos' : g === 'Terceros' ? 'Terceros' : 'Grupo ' + g;
+  document.querySelectorAll('.grupo-btn').forEach(b => b.classList.toggle('active', b.textContent === label));
   renderGrupos();
 }
 
@@ -560,6 +564,44 @@ function renderGrupos() {
     document.getElementById('listaGrupos').innerHTML = '<div class="empty-state">La tabla de grupos estará disponible cuando inicien los partidos.</div>';
     return;
   }
+
+  function htmlTerceros() {
+    if (!tercerosData.length) return '';
+    return `<div class="terceros-bloque">
+      <div class="grupo-titulo-pub">Mejores Terceros Lugares</div>
+      <div class="pub-tabla">
+        <div class="pub-header">
+          <span>Equipo</span><span style="text-align:center">PJ</span>
+          <span style="text-align:center">G</span><span style="text-align:center">E</span>
+          <span style="text-align:center">GF</span><span style="text-align:center">GC</span>
+          <span style="text-align:center">DG</span><span style="text-align:center">Pts</span>
+        </div>
+        ${tercerosData.map(eq => `
+        <div class="pub-row${eq.clasificadoTercero ? ' clasificado' : ''}${eq.eliminado ? ' eliminado' : ''}">
+          <div class="pub-equipo">
+            ${eq.clasificadoTercero ? '<span class="pub-asterisco">*</span>' : ''}
+            ${eq.eliminado ? '<span class="pub-equis">✗</span>' : ''}
+            ${eq.nombre} <span style="color:var(--texto-muted);font-size:11px">(Gr ${eq.grupo})</span>
+          </div>
+          <div class="pub-num">${eq.pj}</div>
+          <div class="pub-num">${eq.g}</div>
+          <div class="pub-num">${eq.e}</div>
+          <div class="pub-num">${eq.gf}</div>
+          <div class="pub-num">${eq.gc}</div>
+          <div class="pub-num">${eq.dg > 0 ? '+' + eq.dg : eq.dg}</div>
+          <div class="pub-pts">${eq.pts}</div>
+        </div>`).join('')}
+      </div>
+      <p class="grupos-nota">* Clasifican los 8 mejores terceros lugares a la siguiente ronda</p>
+    </div>`;
+  }
+
+  // Vista exclusiva: solo la tabla de terceros, sin los 12 grupos
+  if (grupoActivoFiltro === 'Terceros') {
+    document.getElementById('listaGrupos').innerHTML = htmlTerceros();
+    return;
+  }
+
   const mostrar = grupoActivoFiltro === 'Todos' ? grupos : [grupoActivoFiltro];
   let html = '';
   mostrar.forEach(grupo => {
@@ -593,35 +635,7 @@ function renderGrupos() {
   });
   html += '<p class="grupos-nota">* Clasificado a la siguiente ronda &nbsp;·&nbsp; ✗ Eliminado</p>';
 
-  if (grupoActivoFiltro === 'Todos' && tercerosData.length) {
-    html += `<div class="terceros-bloque">
-      <div class="grupo-titulo-pub">Mejores Terceros Lugares</div>
-      <div class="pub-tabla">
-        <div class="pub-header">
-          <span>Equipo</span><span style="text-align:center">PJ</span>
-          <span style="text-align:center">G</span><span style="text-align:center">E</span>
-          <span style="text-align:center">GF</span><span style="text-align:center">GC</span>
-          <span style="text-align:center">DG</span><span style="text-align:center">Pts</span>
-        </div>
-        ${tercerosData.map(eq => `
-        <div class="pub-row${eq.clasificadoTercero ? ' clasificado' : ''}${eq.eliminado ? ' eliminado' : ''}">
-          <div class="pub-equipo">
-            ${eq.clasificadoTercero ? '<span class="pub-asterisco">*</span>' : ''}
-            ${eq.eliminado ? '<span class="pub-equis">✗</span>' : ''}
-            ${eq.nombre} <span style="color:var(--texto-muted);font-size:11px">(Gr ${eq.grupo})</span>
-          </div>
-          <div class="pub-num">${eq.pj}</div>
-          <div class="pub-num">${eq.g}</div>
-          <div class="pub-num">${eq.e}</div>
-          <div class="pub-num">${eq.gf}</div>
-          <div class="pub-num">${eq.gc}</div>
-          <div class="pub-num">${eq.dg > 0 ? '+' + eq.dg : eq.dg}</div>
-          <div class="pub-pts">${eq.pts}</div>
-        </div>`).join('')}
-      </div>
-      <p class="grupos-nota">* Clasifican los 8 mejores terceros lugares a la siguiente ronda</p>
-    </div>`;
-  }
+  if (grupoActivoFiltro === 'Todos') html += htmlTerceros();
 
   document.getElementById('listaGrupos').innerHTML = html;
 }
