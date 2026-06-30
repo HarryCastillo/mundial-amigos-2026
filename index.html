@@ -1177,13 +1177,13 @@ function abrirDesglose(participanteId) {
     if (!filas.length) {
       html += '<p style="color:var(--texto-muted);font-size:14px;margin-top:8px">Aún no hay partidos terminados.</p>';
     } else {
-      html += `<table class="desglose-tabla">
+      html += `<table class="desglose-tabla" style="table-layout:fixed;width:100%">
         <thead><tr>
           <th>Partido</th>
-          <th style="text-align:center">Real</th>
-          <th style="text-align:center">Pronóstico</th>
-          <th style="text-align:center">Resultado</th>
-          <th style="text-align:center">Pts</th>
+          <th style="text-align:center;width:70px">Real</th>
+          <th style="text-align:center;width:90px">Pronóstico</th>
+          <th style="text-align:center;width:110px">Resultado</th>
+          <th style="text-align:center;width:48px">Pts</th>
         </tr></thead><tbody>`;
 
       [... filas].reverse().forEach(f => {
