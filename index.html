@@ -1189,7 +1189,7 @@ function abrirDesglose(participanteId) {
       [... filas].reverse().forEach(f => {
         const rowClass = f.cerradoSinResultado ? 'pendiente' : f.exacto ? 'exacto' : f.correcto ? 'correcto' : '';
         const tag = f.cerradoSinResultado
-          ? '<span class="tag-sinpron">⏳ Cerrado · esperando resultado</span>'
+          ? '<span class="tag-sinpron">⏳ Pendiente</span>'
           : f.sinPron
             ? '<span class="tag-sinpron">sin pronóstico</span>'
             : f.exacto
