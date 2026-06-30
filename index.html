@@ -169,6 +169,7 @@
   .desglose-tabla tr:last-child td { border-bottom: none; }
   .desglose-tabla tr.exacto td { background: rgba(245,197,24,0.06); }
   .desglose-tabla tr.correcto td { background: rgba(72,199,142,0.05); }
+  .desglose-tabla tr.pendiente td { background: rgba(148,163,184,0.06); }
   .tag-exacto { background: rgba(245,197,24,0.2); color: #f5c518; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
   .tag-correcto { background: rgba(72,199,142,0.2); color: #48c78e; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
   .tag-fallo { color: var(--texto-muted); font-size: 11px; }
@@ -1186,15 +1187,17 @@ function abrirDesglose(participanteId) {
         </tr></thead><tbody>`;
 
       [... filas].reverse().forEach(f => {
-        const rowClass = f.exacto ? 'exacto' : f.correcto ? 'correcto' : '';
-        const tag = f.sinPron
-          ? '<span class="tag-sinpron">sin pronóstico</span>'
-          : f.exacto
-            ? '<span class="tag-exacto">⭐ Exacto</span>'
-            : f.correcto
-              ? '<span class="tag-correcto">✓ Correcto</span>'
-              : '<span class="tag-fallo">—</span>';
-        const pts = f.sinPron || f.puntos === 0
+        const rowClass = f.cerradoSinResultado ? 'pendiente' : f.exacto ? 'exacto' : f.correcto ? 'correcto' : '';
+        const tag = f.cerradoSinResultado
+          ? '<span class="tag-sinpron">⏳ Cerrado · esperando resultado</span>'
+          : f.sinPron
+            ? '<span class="tag-sinpron">sin pronóstico</span>'
+            : f.exacto
+              ? '<span class="tag-exacto">⭐ Exacto</span>'
+              : f.correcto
+                ? '<span class="tag-correcto">✓ Correcto</span>'
+                : '<span class="tag-fallo">—</span>';
+        const pts = f.cerradoSinResultado || f.sinPron || f.puntos === 0
           ? '<span class="desglose-pts cero">—</span>'
           : `<span class="desglose-pts">+${f.puntos}</span>`;
         const faseTxt = f.grupo ? `${f.fase} · ${f.grupo}` : f.fase;
