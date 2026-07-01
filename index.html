@@ -1201,11 +1201,12 @@ function abrirDesglose(participanteId) {
           ? '<span class="desglose-pts cero">—</span>'
           : `<span class="desglose-pts">+${f.puntos}</span>`;
         const faseTxt = f.grupo ? `${f.fase} · ${f.grupo}` : f.fase;
+        const realTxt = f.cerradoSinResultado ? '—' : f.resultado;
         html += `<tr class="${rowClass}">
           <td><div style="font-weight:500">${f.partido}</div><div style="font-size:11px;color:var(--texto-muted)">${faseTxt}</div></td>
-          <td style="text-align:center;font-family:'DM Mono',monospace">${f.resultado}</td>
+          <td style="text-align:center;font-family:'DM Mono',monospace">${realTxt}</td>
           <td style="text-align:center;font-family:'DM Mono',monospace">${f.pronostico}</td>
-          <td style="text-align:center">${tag}</td>
+          <td style="text-align:center">${f.cerradoSinResultado ? '—' : tag}</td>
           <td style="text-align:center">${pts}</td>
         </tr>`;
       });
