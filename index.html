@@ -1086,13 +1086,13 @@ function renderPartidoCard(p, ahora) {
     <div class="marcador-inputs" style="margin-top:${pendiente && !pron ? '10px' : '0'}">
       <div class="stepper${pron ? ' guardado' : ''}${cerrado ? ' disabled' : ''}" id="step-l-${p.id}">
         <button class="stepper-btn" onclick="cambiarGoles('${p.id}','l',-1)" ${cerrado ? 'disabled' : ''}>−</button>
-        <div class="stepper-num" id="gl-${p.id}">${pron ? pron.golesLocal : 0}</div>
+        <div class="stepper-num" id="gl-${p.id}">${pron ? pron.golesLocal : '-'}</div>
         <button class="stepper-btn" onclick="cambiarGoles('${p.id}','l',1)" ${cerrado ? 'disabled' : ''}>+</button>
       </div>
       <div class="guion">—</div>
       <div class="stepper${pron ? ' guardado' : ''}${cerrado ? ' disabled' : ''}" id="step-v-${p.id}">
         <button class="stepper-btn" onclick="cambiarGoles('${p.id}','v',-1)" ${cerrado ? 'disabled' : ''}>−</button>
-        <div class="stepper-num" id="gv-${p.id}">${pron ? pron.golesVisitante : 0}</div>
+        <div class="stepper-num" id="gv-${p.id}">${pron ? pron.golesVisitante : '-'}</div>
         <button class="stepper-btn" onclick="cambiarGoles('${p.id}','v',1)" ${cerrado ? 'disabled' : ''}>+</button>
       </div>
     </div>
