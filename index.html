@@ -965,7 +965,7 @@ function cargarPosiciones() {
           ${pos.map(p => `
           <div class="pos-row ${clRow(p.lugar)}" onclick="abrirDesglose('${p.id}')" title="Ver pronósticos de ${p.nombre}">
             <div class="pos-lugar ${co[p.lugar]||''}">${p.lugar}</div>
-            <div class="pos-nombre">${p.nombre}</div>
+            <div class="pos-nombre">${p.nombre}${p.premio ? `<div style="font-size:12px;color:var(--dorado);font-weight:700;margin-top:2px">🏆 $${p.premio.toLocaleString('es-MX')}</div>` : ''}</div>
             <div class="pos-campeon">${p.campeon||'—'}</div>
             <div class="pos-num">${p.exactos}</div>
             <div class="pos-num">${(p.correctos||0) - (p.exactos||0)}</div>
